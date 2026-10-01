@@ -1,4 +1,6 @@
-export type Product = { id:string; name:string; slug:string; category:string; description:string; price_kobo:number; image:string; badge?:string; lead_days:number; sizes:{name:string;price_kobo:number}[] }
+export type ProductOption = { value:string; label:string; fee_kobo:number }
+export type ProductCustomization = { id:string; kind:'flavour'|'colour'|'addon'; label:string; required:boolean; options:ProductOption[] }
+export type Product = { id:string; name:string; slug:string; category:string; description:string; price_kobo:number; image:string; badge?:string; lead_days:number; sizes:{id?:string;name:string;price_kobo:number}[]; customizations?:ProductCustomization[] }
 // Preview catalogue only. Set Supabase credentials to load the live catalogue.
 export const demoProducts: Product[] = [
  {id:'1',name:'Sunday Strawberry',slug:'sunday-strawberry',category:'Birthday',description:'Cloud-soft vanilla sponge, layered with fresh strawberry preserve and finished by hand in silky buttercream.',price_kobo:2850000,image:'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=85',badge:'Bestseller',lead_days:2,sizes:[{name:'6 inch · serves 8',price_kobo:2850000},{name:'8 inch · serves 14',price_kobo:3900000}]},
