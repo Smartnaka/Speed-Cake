@@ -1,0 +1,5 @@
+import {NextResponse} from 'next/server'
+import {supabaseAdmin} from '@/lib/supabase/server'
+import {createClient} from '@supabase/supabase-js'
+export async function requireAdmin(req:Request){const token=req.headers.get('authorization')?.replace(/^Bearer\s+/i,'');if(!token)throw new Error('Unauthorized');const db=supabaseAdmin();const {data:{user},error}=await db.auth.getUser(token);if(error||!user)throw new Error('Unauthorized');const {data:profile}=await db.from('profiles').select('role').eq('id',user.id).single();if(profile?.role!=='admin')throw new Error('Forbidden');const actorDb=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,{global:{headers:{Authorization:`Bearer ${token}`}},auth:{persistSession:false}});return {db,actorDb,user}}
+export function adminError(e:unknown){return NextResponse.json({error:e instanceof Error?e.message:'Request failed'},{status:e instanceof Error&&e.message==='Unauthorized'?401:e instanceof Error&&e.message==='Forbidden'?403:500})}

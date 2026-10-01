@@ -1,0 +1,7 @@
+'use client'
+import {useEffect,useState} from 'react'
+import Link from 'next/link'
+import {useSearchParams} from 'next/navigation'
+import {Suspense} from 'react'
+function PaymentReturnContent(){const params=useSearchParams();const [message,setMessage]=useState('Checking your payment securely…'),[order,setOrder]=useState('');useEffect(()=>{const reference=params.get('reference');if(!reference){setMessage('We could not find a payment reference.');return}fetch('/api/payments/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({reference})}).then(async r=>{const d=await r.json();if(!r.ok)throw new Error(d.error);setOrder(d.order_number);setMessage('Payment received. Your cake is getting ready.');localStorage.removeItem('speedcake-cart-v1')}).catch(e=>setMessage(e.message||'Payment confirmation is still pending.'))},[params]);return <main className="container py-24 text-center min-h-[50vh]"><div className="eyebrow">Thank you</div><h1 className="serif text-5xl mt-3">{order?'Your order is in good hands.':'One moment, please.'}</h1><p className="mt-5 text-[#756862]">{message}</p>{order&&<p className="mt-3 text-sm">Order number <b>{order}</b></p>}<Link className="inline-block mt-8 bg-[#6f3d36] text-white px-6 py-4 text-sm" href={order?'/track':'/cakes'}>{order?'Track your order':'Back to cakes'}</Link></main>}
+export default function PaymentReturn(){return <Suspense fallback={<main className="container py-24">Checking payment…</main>}><PaymentReturnContent/></Suspense>}
