@@ -60,3 +60,57 @@ export function isHardcodedAdminToken(token?: string | null): boolean {
   if (!token) return false
   return token === HARDCODED_ADMIN_TOKEN
 }
+
+// ---------------------------------------------------------------------------
+// Stage 2: Product & Category Catalogue Schemas
+// ---------------------------------------------------------------------------
+export const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+
+export const slugSchema = z
+  .string()
+  .trim()
+  .min(2, 'Slug must be at least 2 characters')
+  .max(100, 'Slug cannot exceed 100 characters')
+  .regex(slugRegex, 'Slug must contain only lowercase letters, numbers, and hyphens (e.g. "chocolate-cake")')
+
+export function generateSlug(input: string): string {
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+export const categoryInputSchema = z.object({
+  name: z.string().trim().min(2, 'Category name must be at least 2 characters').max(100, 'Category name cannot exceed 100 characters'),
+  slug: slugSchema,
+  description: z.string().trim().max(500, 'Description cannot exceed 500 characters').optional().nullable(),
+  image_url: z.string().trim().max(1000).optional().nullable(),
+  sort_order: z.number().int().min(0).default(0),
+  active: z.boolean().default(true),
+})
+
+export type CategoryInput = z.infer<typeof categoryInputSchema>
+
+export const variantInputSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().trim().min(1, 'Size/variant name is required').max(100, 'Name cannot exceed 100 characters'),
+  price_kobo: z.number().int().min(0, 'Price must be 0 or greater'),
+  active: z.boolean().default(true),
+})
+
+export type VariantInput = z.infer<typeof variantInputSchema>
+
+export const productInputSchema = z.object({
+  name: z.string().trim().min(2, 'Product name must be at least 2 characters').max(150, 'Product name cannot exceed 150 characters'),
+  slug: slugSchema,
+  category_id: z.string().uuid('Invalid category ID').nullable().optional().or(z.literal('')),
+  description: z.string().trim().max(2000, 'Description cannot exceed 2000 characters').default(''),
+  lead_days: z.number().int().min(0, 'Lead days cannot be negative').max(60, 'Lead days cannot exceed 60').default(2),
+  active: z.boolean().default(true),
+  featured: z.boolean().default(false),
+  image: z.string().trim().max(1000).optional().nullable(),
+  variants: z.array(variantInputSchema).min(1, 'At least one cake size/variant is required'),
+})
+
+export type ProductInput = z.infer<typeof productInputSchema>

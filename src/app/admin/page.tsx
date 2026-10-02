@@ -1,4 +1,5 @@
 'use client'
+import { useEffect, useState } from 'react'
 import {
   Clock,
   Layers,
@@ -10,11 +11,28 @@ import {
 } from 'lucide-react'
 
 export default function AdminDashboardPage() {
+  const [productCount, setProductCount] = useState<number | null>(null)
+
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('speedcake_admin_token') : null
+    const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {}
+
+    fetch('/api/admin/products', { headers })
+      .then(res => res.json())
+      .then(data => {
+        if (data.ok && Array.isArray(data.products)) {
+          const activeCakes = data.products.filter((p: any) => p.active).length
+          setProductCount(activeCakes)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
   const metrics = [
     {
       label: 'Total Orders',
       value: '0',
-      subtext: 'No customer orders placed yet',
+      subtext: 'Arriving in Stage 3',
       icon: ShoppingBag,
     },
     {
@@ -31,8 +49,8 @@ export default function AdminDashboardPage() {
     },
     {
       label: 'Active Cakes',
-      value: '0',
-      subtext: 'Catalogue inventory rows',
+      value: productCount !== null ? productCount.toString() : '…',
+      subtext: 'Storefront catalogue rows',
       icon: Package,
     },
   ]
@@ -41,16 +59,16 @@ export default function AdminDashboardPage() {
     {
       stage: 'Stage 1',
       title: 'Admin Foundation & Security',
-      status: 'Active',
+      status: 'Completed',
       description: 'Role-based authorization, /admin/login, layout shell, and session protection.',
-      isCurrent: true,
+      isCurrent: false,
     },
     {
       stage: 'Stage 2',
       title: 'Products & Categories',
-      status: 'Upcoming',
-      description: 'Cake catalogue CRUD, price points, variants, and customization options.',
-      isCurrent: false,
+      status: 'Active',
+      description: 'Cake catalogue CRUD, price points, variants, image upload, and category links.',
+      isCurrent: true,
     },
     {
       stage: 'Stage 3',
@@ -82,7 +100,7 @@ export default function AdminDashboardPage() {
         <div className="flex items-center gap-2 self-start md:self-auto">
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#f3e5df] text-[#6f3d36] text-xs font-medium rounded-sm border border-[#e8d2c8]">
             <Sparkles size={14} />
-            <span>Stage 1 · Foundation Active</span>
+            <span>Stage 2 · Catalogue Active</span>
           </span>
         </div>
       </div>
