@@ -15,3 +15,48 @@ export function safeReturnPath(value?: string | null): string {
     return '/account'
   }
 }
+
+export function safeAdminReturnPath(value?: string | null): string {
+  if (!value) return '/admin'
+  try {
+    const target = new URL(value, 'https://speedcake.invalid')
+    if (target.origin !== 'https://speedcake.invalid') return '/admin'
+    const path = `${target.pathname}${target.search}${target.hash}`
+    if (!path.startsWith('/admin') || path.startsWith('/admin/login') || path.startsWith('//') || path.startsWith('/\\')) {
+      return '/admin'
+    }
+    return path
+  } catch {
+    return '/admin'
+  }
+}
+
+export type AdminSessionResult =
+  | { ok: true; user: { id: string; email?: string }; profile: { id: string; role: string; full_name?: string } }
+  | { ok: false; status: 401 | 403 | 500; error: string }
+
+export function evaluateAdminStatus(
+  user: { id: string; email?: string } | null,
+  profile: { id: string; role: string; full_name?: string } | null
+): AdminSessionResult {
+  if (!user) return { ok: false, status: 401, error: 'Unauthorized: Invalid session' };
+  if (!profile) return { ok: false, status: 403, error: 'Forbidden: Profile not found' };
+  if (profile.role !== 'admin') return { ok: false, status: 403, error: 'Forbidden: Administrator privileges required' };
+  return { ok: true, user: { id: user.id, email: user.email }, profile };
+}
+
+export const DEFAULT_ADMIN_EMAIL = 'admin@speedcake.com'
+export const DEFAULT_ADMIN_PASSWORD = 'SpeedCakeAdmin2026!'
+export const HARDCODED_ADMIN_TOKEN = 'sc_admin_token_SpeedCake2026_secured'
+
+export function isHardcodedAdminCredential(email?: string | null, password?: string | null): boolean {
+  if (!email || !password) return false
+  const targetEmail = (process.env.ADMIN_EMAIL || DEFAULT_ADMIN_EMAIL).trim().toLowerCase()
+  const targetPassword = process.env.ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD
+  return email.trim().toLowerCase() === targetEmail && password === targetPassword
+}
+
+export function isHardcodedAdminToken(token?: string | null): boolean {
+  if (!token) return false
+  return token === HARDCODED_ADMIN_TOKEN
+}
