@@ -114,3 +114,41 @@ export const productInputSchema = z.object({
 })
 
 export type ProductInput = z.infer<typeof productInputSchema>
+
+// ---------------------------------------------------------------------------
+// Stage 3: Order Management Schemas
+// ---------------------------------------------------------------------------
+export const validOrderStates = [
+  'pending_payment',
+  'paid',
+  'confirmed',
+  'preparing',
+  'ready',
+  'out_for_delivery',
+  'delivered',
+  'cancelled',
+  'refund_pending',
+  'refunded',
+] as const
+
+export const orderStateSchema = z.enum(validOrderStates)
+export type OrderState = z.infer<typeof orderStateSchema>
+
+export const validPaymentStates = ['pending', 'success', 'paid', 'failed', 'refunded'] as const
+export const paymentStateSchema = z.enum(validPaymentStates)
+export type PaymentState = z.infer<typeof paymentStateSchema>
+
+export const updateOrderStatusSchema = z.object({
+  status: orderStateSchema,
+  note: z.string().trim().max(500, 'Note cannot exceed 500 characters').optional().nullable(),
+})
+export type UpdateOrderStatusInput = z.infer<typeof updateOrderStatusSchema>
+
+export const orderFilterSchema = z.object({
+  search: z.string().trim().max(100).optional(),
+  orderStatus: z.string().trim().optional(),
+  paymentStatus: z.string().trim().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+})
+export type OrderFilterInput = z.infer<typeof orderFilterSchema>

@@ -1,6 +1,9 @@
 'use client'
+
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import {
+  Calendar,
   Clock,
   Layers,
   Package,
@@ -9,14 +12,21 @@ import {
   Users,
   Wallet,
 } from 'lucide-react'
+import { naira } from '@/lib/demo-products'
+import type { AdminOrderRecord } from '@/lib/orders-db'
+import { OrderStatusBadge, PaymentStatusBadge } from '@/components/admin/order-badges'
 
 export default function AdminDashboardPage() {
   const [productCount, setProductCount] = useState<number | null>(null)
+  const [orders, setOrders] = useState<AdminOrderRecord[]>([])
+  const [totalOrders, setTotalOrders] = useState<number | null>(null)
+  const [revenueKobo, setRevenueKobo] = useState<number | null>(null)
 
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('speedcake_admin_token') : null
     const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {}
 
+    // 1. Fetch products count
     fetch('/api/admin/products', { headers })
       .then(res => res.json())
       .then(data => {
@@ -26,26 +36,36 @@ export default function AdminDashboardPage() {
         }
       })
       .catch(() => {})
+
+    // 2. Fetch recent orders
+    fetch('/api/admin/orders?limit=5', { headers })
+      .then(res => res.json())
+      .then(data => {
+        if (data.ok && Array.isArray(data.orders)) {
+          setOrders(data.orders)
+          setTotalOrders(data.total)
+          // Compute verified revenue from paid orders
+          const verified = data.orders
+            .filter((o: AdminOrderRecord) => o.payment_status === 'paid' || o.payment_status === 'success')
+            .reduce((acc: number, curr: AdminOrderRecord) => acc + (curr.total_kobo || 0), 0)
+          setRevenueKobo(verified)
+        }
+      })
+      .catch(() => {})
   }, [])
 
   const metrics = [
     {
       label: 'Total Orders',
-      value: '0',
-      subtext: 'Arriving in Stage 3',
+      value: totalOrders !== null ? totalOrders.toString() : '…',
+      subtext: 'Customer order records',
       icon: ShoppingBag,
     },
     {
       label: 'Verified Revenue',
-      value: '₦0',
-      subtext: 'Paystack transaction total',
+      value: revenueKobo !== null ? naira(revenueKobo) : '…',
+      subtext: 'Paid orders subtotal',
       icon: Wallet,
-    },
-    {
-      label: 'Registered Customers',
-      value: '0',
-      subtext: 'Customer account records',
-      icon: Users,
     },
     {
       label: 'Active Cakes',
@@ -53,9 +73,15 @@ export default function AdminDashboardPage() {
       subtext: 'Storefront catalogue rows',
       icon: Package,
     },
+    {
+      label: 'Customer Accounts',
+      value: 'Secured',
+      subtext: 'Supabase authenticated',
+      icon: Users,
+    },
   ]
 
-  const upcomingStages = [
+  const stages = [
     {
       stage: 'Stage 1',
       title: 'Admin Foundation & Security',
@@ -66,16 +92,16 @@ export default function AdminDashboardPage() {
     {
       stage: 'Stage 2',
       title: 'Products & Categories',
-      status: 'Active',
+      status: 'Completed',
       description: 'Cake catalogue CRUD, price points, variants, image upload, and category links.',
-      isCurrent: true,
+      isCurrent: false,
     },
     {
       stage: 'Stage 3',
       title: 'Orders & Fulfillment',
-      status: 'Upcoming',
+      status: 'Active',
       description: 'Live order tracking, state transitions, customer details, and delivery notes.',
-      isCurrent: false,
+      isCurrent: true,
     },
     {
       stage: 'Stage 4',
@@ -100,12 +126,12 @@ export default function AdminDashboardPage() {
         <div className="flex items-center gap-2 self-start md:self-auto">
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#f3e5df] text-[#6f3d36] text-xs font-medium rounded-sm border border-[#e8d2c8]">
             <Sparkles size={14} />
-            <span>Stage 2 · Catalogue Active</span>
+            <span>Stage 3 · Orders & Fulfillment Active</span>
           </span>
         </div>
       </div>
 
-      {/* Metric Cards (Placeholder / Initial state without fake data) */}
+      {/* Metric Cards */}
       <section>
         <h2 className="text-xs uppercase tracking-wider text-[#867872] font-semibold mb-4">
           Store Snapshot
@@ -129,33 +155,88 @@ export default function AdminDashboardPage() {
         </div>
       </section>
 
-      {/* Recent Orders Section with Empty State */}
+      {/* Recent Orders Section */}
       <section className="bg-white border border-[#ded0c8] p-6 shadow-sm">
         <div className="flex items-center justify-between pb-4 border-b border-[#eee3db]">
           <div>
             <h2 className="serif text-xl text-[#352c28]">Recent Orders</h2>
             <p className="text-xs text-[#756862] mt-0.5">
-              Live customer orders and delivery schedules will appear here.
+              Live customer orders and fulfillment schedules.
             </p>
           </div>
-          <span className="text-[11px] text-[#867872] uppercase tracking-wider font-medium">
-            0 Orders
-          </span>
+          <Link
+            href="/admin/orders"
+            className="text-xs font-medium text-[#6f3d36] hover:underline"
+          >
+            View all orders &rarr;
+          </Link>
         </div>
 
-        <div className="py-16 text-center">
-          <div className="w-12 h-12 rounded-full bg-[#f6eee8] text-[#6f3d36] mx-auto flex items-center justify-center mb-3">
-            <ShoppingBag size={22} />
+        {orders.length === 0 ? (
+          <div className="py-16 text-center">
+            <div className="w-12 h-12 rounded-full bg-[#f6eee8] text-[#6f3d36] mx-auto flex items-center justify-center mb-3">
+              <ShoppingBag size={22} />
+            </div>
+            <h3 className="serif text-lg text-[#352c28]">No orders recorded yet</h3>
+            <p className="text-xs text-[#756862] max-w-md mx-auto mt-2 leading-relaxed">
+              When customers place orders through the storefront, they will be listed here with customer contact details, delivery date, time window, and status progression controls.
+            </p>
           </div>
-          <h3 className="serif text-lg text-[#352c28]">No orders recorded yet</h3>
-          <p className="text-xs text-[#756862] max-w-md mx-auto mt-2 leading-relaxed">
-            When customers place and complete cake orders through the storefront, they will be listed here with customer contact details, delivery date, time window, and status progression controls.
-          </p>
-          <div className="mt-5 inline-flex items-center gap-1.5 text-[11px] text-[#8a5b51] font-medium bg-[#faf3ef] px-3 py-1.5 rounded-sm">
-            <Clock size={13} />
-            <span>Order management & status progression arriving in Stage 3</span>
+        ) : (
+          <div className="overflow-x-auto mt-4">
+            <table className="w-full text-left text-sm border-collapse">
+              <thead>
+                <tr className="bg-[#fcf9f7] border-b border-[#e5d9d1] text-xs font-medium text-[#756862] uppercase tracking-wider">
+                  <th className="py-2.5 px-3">Order #</th>
+                  <th className="py-2.5 px-3">Customer</th>
+                  <th className="py-2.5 px-3">Delivery Date</th>
+                  <th className="py-2.5 px-3">Payment</th>
+                  <th className="py-2.5 px-3">Status</th>
+                  <th className="py-2.5 px-3 text-right">Total</th>
+                  <th className="py-2.5 px-3 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#eee4dc]">
+                {orders.map(order => (
+                  <tr key={order.id} className="hover:bg-[#fdfbf9] transition-colors">
+                    <td className="py-3 px-3 font-mono font-medium text-[#6f3d36]">
+                      <Link href={`/admin/orders/${order.id}`} className="hover:underline">
+                        {order.order_number}
+                      </Link>
+                    </td>
+                    <td className="py-3 px-3 text-xs text-[#352c28]">
+                      <div className="font-medium">{order.customer_name}</div>
+                      <div className="text-[#867872]">{order.customer_email}</div>
+                    </td>
+                    <td className="py-3 px-3 text-xs text-[#756862]">
+                      <div className="flex items-center gap-1">
+                        <Calendar size={12} className="text-[#867872]" />
+                        <span>{order.delivery_date || 'Standard'}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-3">
+                      <PaymentStatusBadge status={order.payment_status} />
+                    </td>
+                    <td className="py-3 px-3">
+                      <OrderStatusBadge status={order.status} />
+                    </td>
+                    <td className="py-3 px-3 text-right text-xs font-medium text-[#352c28]">
+                      {naira(order.total_kobo)}
+                    </td>
+                    <td className="py-3 px-3 text-right">
+                      <Link
+                        href={`/admin/orders/${order.id}`}
+                        className="text-xs font-medium text-[#6f3d36] hover:underline"
+                      >
+                        Manage
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </div>
+        )}
       </section>
 
       {/* Admin Implementation Roadmap */}
@@ -165,7 +246,7 @@ export default function AdminDashboardPage() {
           <h2 className="serif text-lg text-[#352c28]">Admin Development Stages</h2>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {upcomingStages.map(s => (
+          {stages.map(s => (
             <div
               key={s.stage}
               className={`p-4 border text-xs flex flex-col justify-between ${

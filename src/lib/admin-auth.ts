@@ -5,7 +5,14 @@ import {evaluateAdminStatus, type AdminSessionResult, isHardcodedAdminToken, DEF
 export {evaluateAdminStatus, type AdminSessionResult}
 
 export async function verifyAdminSession(req: Request, customDb?: any): Promise<AdminSessionResult> {
-  const token = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '');
+  let token = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '');
+  if (!token) {
+    const cookieHeader = req.headers.get('cookie') || '';
+    const match = cookieHeader.match(/speedcake_admin_token=([^;]+)/);
+    if (match && match[1]) {
+      token = decodeURIComponent(match[1]);
+    }
+  }
   if (!token) return { ok: false, status: 401, error: 'Unauthorized: Missing token' };
 
   if (isHardcodedAdminToken(token)) {

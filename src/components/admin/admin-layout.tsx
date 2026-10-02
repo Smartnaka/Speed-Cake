@@ -48,9 +48,7 @@ export function AdminShell({adminUser, onLogout, children}: AdminShellProps) {
       label: 'Orders',
       href: '/admin/orders',
       icon: ShoppingBag,
-      active: pathname === '/admin/orders',
-      badge: 'Stage 3',
-      disabled: true,
+      active: pathname.startsWith('/admin/orders'),
     },
     {
       label: 'Products',
