@@ -25,11 +25,7 @@ import {
 import { naira } from '@/lib/demo-products'
 import type { AdminOrderRecord } from '@/lib/orders-db'
 import { OrderStatusBadge, PaymentStatusBadge } from '@/components/admin/order-badges'
-
-function getAuthHeader(): Record<string, string> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('speedcake_admin_token') : null
-  return token ? { Authorization: `Bearer ${token}` } : {}
-}
+import { getAdminAuthHeader } from '@/lib/admin-client-auth'
 
 const ALLOWED_TRANSITIONS: Record<string, string[]> = {
   pending_payment: ['paid', 'cancelled'],
@@ -61,7 +57,7 @@ export default function AdminOrderDetailPage({ params }: { params: { id: string 
     setError(null)
     try {
       const res = await fetch(`/api/admin/orders/${params.id}`, {
-        headers: getAuthHeader(),
+        headers: await getAdminAuthHeader(),
       })
       const data = await res.json()
       if (!res.ok || !data.ok) {
@@ -97,7 +93,7 @@ export default function AdminOrderDetailPage({ params }: { params: { id: string 
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          ...getAuthHeader(),
+          ...(await getAdminAuthHeader()),
         },
         body: JSON.stringify({
           status: selectedNextStatus,

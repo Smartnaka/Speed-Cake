@@ -3,22 +3,8 @@ import { verifyAdminSession } from '@/lib/admin-auth'
 import { productInputSchema } from '@/lib/schemas'
 import { getAdminProducts, createProduct } from '@/lib/catalogue-db'
 
-function extractRequestWithAuth(req: Request): Request {
-  const authHeader = req.headers.get('authorization')
-  if (authHeader) return req
-
-  const cookieHeader = req.headers.get('cookie') || ''
-  const match = cookieHeader.match(/speedcake_admin_token=([^;]+)/)
-  if (match && match[1]) {
-    const headers = new Headers(req.headers)
-    headers.set('authorization', `Bearer ${decodeURIComponent(match[1])}`)
-    return new Request(req.url, { headers, method: req.method, body: req.body })
-  }
-  return req
-}
-
 export async function GET(req: Request) {
-  const auth = await verifyAdminSession(extractRequestWithAuth(req))
+  const auth = await verifyAdminSession(req)
   if (!auth.ok) {
     return NextResponse.json({ error: auth.error }, { status: auth.status })
   }
@@ -41,7 +27,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const auth = await verifyAdminSession(extractRequestWithAuth(req))
+  const auth = await verifyAdminSession(req)
   if (!auth.ok) {
     return NextResponse.json({ error: auth.error }, { status: auth.status })
   }

@@ -21,22 +21,16 @@ function AdminLoginContent() {
     let active = true
     async function checkExisting() {
       try {
-        const localToken = typeof window !== 'undefined' ? localStorage.getItem('speedcake_admin_token') : null
-        let supabaseToken: string | null = null
-        try {
-          const db = supabaseBrowser()
-          const {data: {session}} = await db.auth.getSession()
-          if (session) supabaseToken = session.access_token
-        } catch {}
-
-        const token = localToken || supabaseToken
-        const headers: Record<string, string> = {}
-        if (token) headers.Authorization = `Bearer ${token}`
-
-        const res = await fetch('/api/admin/session', { headers })
-        if (res.ok && active) {
-          router.replace(next)
-          return
+        const db = supabaseBrowser()
+        const { data: { session } } = await db.auth.getSession()
+        if (session?.access_token) {
+          const res = await fetch('/api/admin/session', {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          })
+          if (res.ok && active) {
+            router.replace(next)
+            return
+          }
         }
       } catch {}
       if (active) setCheckingInitialSession(false)
@@ -53,19 +47,30 @@ function AdminLoginContent() {
     setLoading(true)
 
     try {
-      const res = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({email, password}),
+      const db = supabaseBrowser()
+      const { data, error: signInError } = await db.auth.signInWithPassword({
+        email: email.trim(),
+        password,
       })
 
-      const data = await res.json()
-      if (!res.ok || !data.ok) {
-        throw new Error(data.error || 'Invalid administrator email or password.')
+      if (signInError || !data.session) {
+        throw new Error(signInError?.message || 'Invalid administrator email or password.')
       }
 
-      if (typeof window !== 'undefined' && data.token) {
-        localStorage.setItem('speedcake_admin_token', data.token)
+      // Verify server-side admin authorization
+      const res = await fetch('/api/admin/session', {
+        headers: { Authorization: `Bearer ${data.session.access_token}` },
+      })
+
+      if (res.status === 403) {
+        await db.auth.signOut()
+        throw new Error('Access denied: Administrator privileges required.')
+      }
+
+      if (!res.ok) {
+        await db.auth.signOut()
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body.error || 'Failed to verify administrator privileges.')
       }
 
       router.replace(next)

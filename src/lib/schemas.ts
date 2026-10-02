@@ -45,22 +45,6 @@ export function evaluateAdminStatus(
   return { ok: true, user: { id: user.id, email: user.email }, profile };
 }
 
-export const DEFAULT_ADMIN_EMAIL = 'admin@speedcake.com'
-export const DEFAULT_ADMIN_PASSWORD = 'SpeedCakeAdmin2026!'
-export const HARDCODED_ADMIN_TOKEN = 'sc_admin_token_SpeedCake2026_secured'
-
-export function isHardcodedAdminCredential(email?: string | null, password?: string | null): boolean {
-  if (!email || !password) return false
-  const targetEmail = (process.env.ADMIN_EMAIL || DEFAULT_ADMIN_EMAIL).trim().toLowerCase()
-  const targetPassword = process.env.ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD
-  return email.trim().toLowerCase() === targetEmail && password === targetPassword
-}
-
-export function isHardcodedAdminToken(token?: string | null): boolean {
-  if (!token) return false
-  return token === HARDCODED_ADMIN_TOKEN
-}
-
 // ---------------------------------------------------------------------------
 // Stage 2: Product & Category Catalogue Schemas
 // ---------------------------------------------------------------------------

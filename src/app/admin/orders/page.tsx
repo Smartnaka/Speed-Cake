@@ -23,11 +23,7 @@ import { naira } from '@/lib/demo-products'
 import type { AdminOrderRecord } from '@/lib/orders-db'
 
 import { OrderStatusBadge, PaymentStatusBadge } from '@/components/admin/order-badges'
-
-function getAuthHeader(): Record<string, string> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('speedcake_admin_token') : null
-  return token ? { Authorization: `Bearer ${token}` } : {}
-}
+import { getAdminAuthHeader } from '@/lib/admin-client-auth'
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<AdminOrderRecord[]>([])
@@ -56,7 +52,7 @@ export default function AdminOrdersPage() {
       params.set('limit', String(limit))
 
       const res = await fetch(`/api/admin/orders?${params.toString()}`, {
-        headers: getAuthHeader(),
+        headers: await getAdminAuthHeader(),
       })
 
       const data = await res.json()

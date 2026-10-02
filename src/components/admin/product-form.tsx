@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { generateSlug, type ProductInput, type VariantInput } from '@/lib/schemas'
 import type { AdminProductRecord, CategoryRecord } from '@/lib/catalogue-db'
+import { getAdminAuthHeader } from '@/lib/admin-client-auth'
 
 interface ProductFormProps {
   initialProduct?: AdminProductRecord
@@ -55,10 +56,6 @@ export function ProductForm({ initialProduct, categories }: ProductFormProps) {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  function getAuthHeader(): Record<string, string> {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('speedcake_admin_token') : null
-    return token ? { Authorization: `Bearer ${token}` } : {}
-  }
 
   function handleNameChange(newName: string) {
     setName(newName)
@@ -117,7 +114,7 @@ export function ProductForm({ initialProduct, categories }: ProductFormProps) {
 
       const res = await fetch('/api/admin/upload', {
         method: 'POST',
-        headers: getAuthHeader(),
+        headers: await getAdminAuthHeader(),
         body: formData,
       })
 
@@ -174,7 +171,7 @@ export function ProductForm({ initialProduct, categories }: ProductFormProps) {
         method,
         headers: {
           'Content-Type': 'application/json',
-          ...getAuthHeader(),
+          ...(await getAdminAuthHeader()),
         },
         body: JSON.stringify(payload),
       })

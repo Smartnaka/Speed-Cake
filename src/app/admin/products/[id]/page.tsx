@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import { ProductForm } from '@/components/admin/product-form'
 import type { AdminProductRecord, CategoryRecord } from '@/lib/catalogue-db'
+import { getAdminAuthHeader } from '@/lib/admin-client-auth'
 
 export default function EditProductPage({ params }: { params: { id: string } }) {
   const [product, setProduct] = useState<AdminProductRecord | null>(null)
@@ -11,18 +12,14 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  function getAuthHeader(): Record<string, string> {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('speedcake_admin_token') : null
-    return token ? { Authorization: `Bearer ${token}` } : {}
-  }
-
   useEffect(() => {
     async function load() {
       setLoading(true)
       try {
+        const headers = await getAdminAuthHeader()
         const [prodRes, catRes] = await Promise.all([
-          fetch(`/api/admin/products/${params.id}`, { headers: getAuthHeader() }),
-          fetch('/api/admin/categories', { headers: getAuthHeader() }),
+          fetch(`/api/admin/products/${params.id}`, { headers }),
+          fetch('/api/admin/categories', { headers }),
         ])
 
         const prodData = await prodRes.json()

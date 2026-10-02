@@ -9,8 +9,6 @@ import {
   updateOrderStatusSchema,
   orderFilterSchema,
   evaluateAdminStatus,
-  isHardcodedAdminToken,
-  HARDCODED_ADMIN_TOKEN,
 } from '../src/lib/schemas.ts'
 
 // ---------------------------------------------------------------------------
@@ -486,6 +484,11 @@ test('Admin authorization: Only authenticated admin can query admin order APIs',
   const adminUser = { id: 'admin-1', email: 'admin@speedcake.com' }
   const adminProfile = { id: 'admin-1', role: 'admin' }
 
+  // Unauthenticated evaluation
+  const unauthEval = evaluateAdminStatus(null, null)
+  assert.equal(unauthEval.ok, false)
+  assert.equal(unauthEval.status, 401)
+
   // Customer evaluation
   const custEval = evaluateAdminStatus(customerUser, customerProfile)
   assert.equal(custEval.ok, false)
@@ -494,8 +497,4 @@ test('Admin authorization: Only authenticated admin can query admin order APIs',
   // Admin evaluation
   const adminEval = evaluateAdminStatus(adminUser, adminProfile)
   assert.equal(adminEval.ok, true)
-
-  // Hardcoded admin token
-  assert.equal(isHardcodedAdminToken(HARDCODED_ADMIN_TOKEN), true)
-  assert.equal(isHardcodedAdminToken('random-token'), false)
 })

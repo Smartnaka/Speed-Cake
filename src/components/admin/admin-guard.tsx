@@ -29,29 +29,27 @@ export function AdminGuard({children}: AdminGuardProps) {
 
     async function verify() {
       try {
-        const localToken = typeof window !== 'undefined' ? localStorage.getItem('speedcake_admin_token') : null
+        const db = supabaseBrowser()
+        const { data: { session } } = await db.auth.getSession()
 
-        let supabaseToken: string | null = null
-        try {
-          const db = supabaseBrowser()
-          const {data: {session}} = await db.auth.getSession()
-          if (session) {
-            supabaseToken = session.access_token
-            if (active) setUserEmail(session.user.email || '')
-          }
-        } catch {}
+        if (!session?.access_token) {
+          if (!active) return
+          setStatus('unauthenticated')
+          const nextParam = pathname ? `?next=${encodeURIComponent(pathname)}` : ''
+          router.replace(`/admin/login${nextParam}`)
+          return
+        }
 
-        const token = localToken || supabaseToken
-        const headers: Record<string, string> = {}
-        if (token) headers.Authorization = `Bearer ${token}`
+        if (active) setUserEmail(session.user.email || '')
 
-        // Server-side verification of admin authorization (checks Bearer token or cookie)
-        const res = await fetch('/api/admin/session', { headers })
+        // Server-side verification of admin authorization
+        const res = await fetch('/api/admin/session', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
 
         if (!active) return
 
         if (res.status === 401) {
-          if (typeof window !== 'undefined') localStorage.removeItem('speedcake_admin_token')
           setStatus('unauthenticated')
           const nextParam = pathname ? `?next=${encodeURIComponent(pathname)}` : ''
           router.replace(`/admin/login${nextParam}`)
@@ -85,14 +83,13 @@ export function AdminGuard({children}: AdminGuardProps) {
 
     void verify()
 
-    // Listen to Supabase auth changes if signed in via Supabase
+    // Listen to Supabase auth changes
     let subscription: {unsubscribe: () => void} | undefined
     try {
       const db = supabaseBrowser()
       const auth = db.auth.onAuthStateChange((event, session) => {
         if (!active) return
-        const hasLocalToken = typeof window !== 'undefined' && !!localStorage.getItem('speedcake_admin_token')
-        if ((event === 'SIGNED_OUT' || !session) && !hasLocalToken) {
+        if (event === 'SIGNED_OUT' || !session) {
           setStatus('unauthenticated')
           setAdminUser(null)
           router.replace('/admin/login')
@@ -108,9 +105,6 @@ export function AdminGuard({children}: AdminGuardProps) {
   }, [pathname, router])
 
   async function handleLogout() {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('speedcake_admin_token')
-    }
     try {
       await fetch('/api/admin/logout', { method: 'POST' })
     } catch {}

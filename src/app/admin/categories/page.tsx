@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { generateSlug, type CategoryInput } from '@/lib/schemas'
 import type { CategoryRecord } from '@/lib/catalogue-db'
+import { getAdminAuthHeader } from '@/lib/admin-client-auth'
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<CategoryRecord[]>([])
@@ -44,17 +45,12 @@ export default function AdminCategoriesPage() {
   } | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
-  function getAuthHeader(): Record<string, string> {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('speedcake_admin_token') : null
-    return token ? { Authorization: `Bearer ${token}` } : {}
-  }
-
   async function fetchCategories() {
     setLoading(true)
     setActionError('')
     try {
       const res = await fetch('/api/admin/categories', {
-        headers: getAuthHeader(),
+        headers: await getAdminAuthHeader(),
       })
       const data = await res.json()
       if (res.ok && data.ok) {
@@ -124,7 +120,7 @@ export default function AdminCategoriesPage() {
         method,
         headers: {
           'Content-Type': 'application/json',
-          ...getAuthHeader(),
+          ...(await getAdminAuthHeader()),
         },
         body: JSON.stringify(formData),
       })
@@ -152,7 +148,7 @@ export default function AdminCategoriesPage() {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          ...getAuthHeader(),
+          ...(await getAdminAuthHeader()),
         },
         body: JSON.stringify({ active: !cat.active }),
       })
@@ -186,7 +182,7 @@ export default function AdminCategoriesPage() {
     try {
       const res = await fetch(`/api/admin/categories/${cat.id}`, {
         method: 'DELETE',
-        headers: getAuthHeader(),
+        headers: await getAdminAuthHeader(),
       })
       const data = await res.json()
       if (res.ok && data.ok) {

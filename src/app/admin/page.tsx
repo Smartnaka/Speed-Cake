@@ -15,6 +15,7 @@ import {
 import { naira } from '@/lib/demo-products'
 import type { AdminOrderRecord } from '@/lib/orders-db'
 import { OrderStatusBadge, PaymentStatusBadge } from '@/components/admin/order-badges'
+import { getAdminAuthHeader } from '@/lib/admin-client-auth'
 
 export default function AdminDashboardPage() {
   const [productCount, setProductCount] = useState<number | null>(null)
@@ -23,35 +24,38 @@ export default function AdminDashboardPage() {
   const [revenueKobo, setRevenueKobo] = useState<number | null>(null)
 
   useEffect(() => {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('speedcake_admin_token') : null
-    const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {}
+    async function loadDashboard() {
+      const headers = await getAdminAuthHeader()
 
-    // 1. Fetch products count
-    fetch('/api/admin/products', { headers })
-      .then(res => res.json())
-      .then(data => {
-        if (data.ok && Array.isArray(data.products)) {
-          const activeCakes = data.products.filter((p: any) => p.active).length
-          setProductCount(activeCakes)
-        }
-      })
-      .catch(() => {})
+      // 1. Fetch products count
+      fetch('/api/admin/products', { headers })
+        .then(res => res.json())
+        .then(data => {
+          if (data.ok && Array.isArray(data.products)) {
+            const activeCakes = data.products.filter((p: any) => p.active).length
+            setProductCount(activeCakes)
+          }
+        })
+        .catch(() => {})
 
-    // 2. Fetch recent orders
-    fetch('/api/admin/orders?limit=5', { headers })
-      .then(res => res.json())
-      .then(data => {
-        if (data.ok && Array.isArray(data.orders)) {
-          setOrders(data.orders)
-          setTotalOrders(data.total)
-          // Compute verified revenue from paid orders
-          const verified = data.orders
-            .filter((o: AdminOrderRecord) => o.payment_status === 'paid' || o.payment_status === 'success')
-            .reduce((acc: number, curr: AdminOrderRecord) => acc + (curr.total_kobo || 0), 0)
-          setRevenueKobo(verified)
-        }
-      })
-      .catch(() => {})
+      // 2. Fetch recent orders
+      fetch('/api/admin/orders?limit=5', { headers })
+        .then(res => res.json())
+        .then(data => {
+          if (data.ok && Array.isArray(data.orders)) {
+            setOrders(data.orders)
+            setTotalOrders(data.total)
+            // Compute verified revenue from paid orders
+            const verified = data.orders
+              .filter((o: AdminOrderRecord) => o.payment_status === 'paid' || o.payment_status === 'success')
+              .reduce((acc: number, curr: AdminOrderRecord) => acc + (curr.total_kobo || 0), 0)
+            setRevenueKobo(verified)
+          }
+        })
+        .catch(() => {})
+    }
+
+    void loadDashboard()
   }, [])
 
   const metrics = [

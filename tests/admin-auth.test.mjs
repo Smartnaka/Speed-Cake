@@ -1,23 +1,52 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {
-  safeAdminReturnPath,
-  evaluateAdminStatus,
-  DEFAULT_ADMIN_EMAIL,
-  DEFAULT_ADMIN_PASSWORD,
-  HARDCODED_ADMIN_TOKEN,
-  isHardcodedAdminCredential,
-  isHardcodedAdminToken,
-} from '../src/lib/schemas.ts'
+import { safeAdminReturnPath, evaluateAdminStatus } from '../src/lib/schemas.ts'
 
-// Mock Supabase database client for unit testing server-side authorization
-function createMockDb({ user = null, userError = null, profile = null, profileError = null } = {}) {
+async function verifyAdminSession(req, mockDb) {
+  const token = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
+  if (!token) {
+    return { ok: false, status: 401, error: 'Unauthorized: Missing token' }
+  }
+
+  try {
+    const { data: { user }, error: userError } = await mockDb.auth.getUser(token)
+    if (userError || !user) {
+      return { ok: false, status: 401, error: 'Unauthorized: Invalid session' }
+    }
+
+    const { data: profile, error: profileError } = await mockDb
+      .from('profiles')
+      .select('id, role, full_name')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    if (profileError || !profile) {
+      return { ok: false, status: 403, error: 'Forbidden: Profile not found' }
+    }
+
+    return evaluateAdminStatus(user, profile)
+  } catch (err) {
+    return {
+      ok: false,
+      status: 500,
+      error: err instanceof Error ? err.message : 'Authentication service unavailable',
+    }
+  }
+}
+
+// Mock Supabase client for testing verifyAdminSession server-side authorization
+function createMockDb({
+  tokenUserMap = {},
+  profiles = {},
+} = {}) {
   return {
     auth: {
       async getUser(token) {
-        if (userError) return { data: { user: null }, error: userError }
-        return { data: { user }, error: null }
-      }
+        if (token && tokenUserMap[token]) {
+          return { data: { user: tokenUserMap[token] }, error: null }
+        }
+        return { data: { user: null }, error: new Error('Invalid token') }
+      },
     },
     from(table) {
       assert.equal(table, 'profiles')
@@ -26,89 +55,30 @@ function createMockDb({ user = null, userError = null, profile = null, profileEr
           return {
             eq(col, val) {
               assert.equal(col, 'id')
-              assert.equal(val, user?.id)
               return {
                 async maybeSingle() {
-                  if (profileError) return { data: null, error: profileError }
+                  const profile = profiles[val] || null
                   return { data: profile, error: null }
-                }
+                },
               }
-            }
+            },
           }
-        }
+        },
       }
-    }
-  }
-}
-
-// Emulates the server session verification logic in src/lib/admin-auth.ts
-async function simulateVerifyAdminSession(req, mockDb) {
-  const token = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
-  if (!token) return { ok: false, status: 401, error: 'Unauthorized: Missing token' }
-
-  if (isHardcodedAdminToken(token)) {
-    return {
-      ok: true,
-      user: { id: 'admin-hardcoded', email: DEFAULT_ADMIN_EMAIL },
-      profile: { id: 'admin-hardcoded', role: 'admin', full_name: 'Speed Cake Administrator' },
-    }
-  }
-
-  try {
-    const { data: { user }, error: userError } = await mockDb.auth.getUser(token)
-    if (userError || !user) return { ok: false, status: 401, error: 'Unauthorized: Invalid session' }
-    const { data: profile, error: profileError } = await mockDb.from('profiles').select('id,role,full_name').eq('id', user.id).maybeSingle()
-    if (profileError || !profile) return { ok: false, status: 403, error: 'Forbidden: Profile not found' }
-    return evaluateAdminStatus(user, profile)
-  } catch (err) {
-    return { ok: false, status: 500, error: err instanceof Error ? err.message : 'Authentication service unavailable' }
+    },
   }
 }
 
 // ---------------------------------------------------------------------------
-// Hardcoded admin credentials tests
-// ---------------------------------------------------------------------------
-test('hardcoded admin credentials validate successfully and reject unauthorized combinations', () => {
-  // Correct credentials
-  assert.equal(isHardcodedAdminCredential('admin@speedcake.com', 'SpeedCakeAdmin2026!'), true)
-  assert.equal(isHardcodedAdminCredential('ADMIN@SPEEDCAKE.COM', 'SpeedCakeAdmin2026!'), true)
-  assert.equal(isHardcodedAdminCredential('  admin@speedcake.com  ', 'SpeedCakeAdmin2026!'), true)
-
-  // Incorrect credentials
-  assert.equal(isHardcodedAdminCredential('admin@speedcake.com', 'wrongpassword'), false)
-  assert.equal(isHardcodedAdminCredential('hacker@speedcake.com', 'SpeedCakeAdmin2026!'), false)
-  assert.equal(isHardcodedAdminCredential('', ''), false)
-  assert.equal(isHardcodedAdminCredential(null, null), false)
-
-  // Token verification
-  assert.equal(isHardcodedAdminToken(HARDCODED_ADMIN_TOKEN), true)
-  assert.equal(isHardcodedAdminToken('random-invalid-token'), false)
-  assert.equal(isHardcodedAdminToken(null), false)
-})
-
-test('hardcoded admin token grants immediate administrator access', async () => {
-  const req = new Request('https://speedcake.invalid/api/admin/session', {
-    headers: { Authorization: `Bearer ${HARDCODED_ADMIN_TOKEN}` },
-  })
-  const mockDb = createMockDb()
-  const result = await simulateVerifyAdminSession(req, mockDb)
-
-  assert.equal(result.ok, true)
-  if (result.ok) {
-    assert.equal(result.user.email, 'admin@speedcake.com')
-    assert.equal(result.profile.role, 'admin')
-  }
-})
-
-// ---------------------------------------------------------------------------
-// safeAdminReturnPath security and redirect tests
+// 1. safeAdminReturnPath tests
 // ---------------------------------------------------------------------------
 test('safeAdminReturnPath allows valid admin paths and blocks open redirects and redirect loops', () => {
   // Valid admin paths
   assert.equal(safeAdminReturnPath('/admin'), '/admin')
   assert.equal(safeAdminReturnPath('/admin/orders'), '/admin/orders')
-  assert.equal(safeAdminReturnPath('/admin/orders?page=2'), '/admin/orders?page=2')
+  assert.equal(safeAdminReturnPath('/admin/orders/SC-2026-0001'), '/admin/orders/SC-2026-0001')
   assert.equal(safeAdminReturnPath('/admin/products'), '/admin/products')
+  assert.equal(safeAdminReturnPath('/admin/categories'), '/admin/categories')
 
   // Prevent redirect loops
   assert.equal(safeAdminReturnPath('/admin/login'), '/admin')
@@ -133,149 +103,227 @@ test('safeAdminReturnPath allows valid admin paths and blocks open redirects and
 })
 
 // ---------------------------------------------------------------------------
-// Test A: Unauthenticated user visits /admin -> expected /admin/login
+// 2. evaluateAdminStatus tests
 // ---------------------------------------------------------------------------
-test('Test A: Unauthenticated user visits /admin -> rejected and redirected to /admin/login', async () => {
-  // 1. Server validation: request without bearer token is rejected with 401 Unauthorized
-  const mockDb = createMockDb()
-  const req = new Request('https://speedcake.invalid/api/admin/session')
-  const result = await simulateVerifyAdminSession(req, mockDb)
+test('evaluateAdminStatus strictly enforces database role === "admin"', () => {
+  // 1. Missing user -> 401
+  const noUser = evaluateAdminStatus(null, null)
+  assert.equal(noUser.ok, false)
+  assert.equal(noUser.status, 401)
 
-  assert.equal(result.ok, false)
-  assert.equal(result.status, 401)
-  assert.match(result.error, /Unauthorized: Missing token/i)
+  // 2. Missing profile -> 403
+  const noProfile = evaluateAdminStatus({ id: 'u1', email: 'test@example.com' }, null)
+  assert.equal(noProfile.ok, false)
+  assert.equal(noProfile.status, 403)
 
-  // 2. Client guard logic: no session found redirects to /admin/login preserving intended next path
-  const session = null
-  const pathname = '/admin'
-  const nextTarget = pathname ? `?next=${encodeURIComponent(pathname)}` : ''
-  const redirectUrl = `/admin/login${nextTarget}`
+  // 3. Customer profile -> 403 Forbidden
+  const customer = evaluateAdminStatus(
+    { id: 'u1', email: 'customer@example.com' },
+    { id: 'u1', role: 'customer', full_name: 'Regular Customer' }
+  )
+  assert.equal(customer.ok, false)
+  assert.equal(customer.status, 403)
+  assert.match(customer.error, /Forbidden/i)
 
-  assert.equal(redirectUrl, '/admin/login?next=%2Fadmin')
-  assert.equal(safeAdminReturnPath(pathname), '/admin')
-})
-
-// ---------------------------------------------------------------------------
-// Test B: Unauthenticated user visits /admin/orders -> redirect to /admin/login
-// ---------------------------------------------------------------------------
-test('Test B: Unauthenticated user visits /admin/orders -> redirect to /admin/login?next=/admin/orders', async () => {
-  const mockDb = createMockDb()
-  const req = new Request('https://speedcake.invalid/api/admin/session')
-  const result = await simulateVerifyAdminSession(req, mockDb)
-
-  assert.equal(result.ok, false)
-  assert.equal(result.status, 401)
-
-  // Client guard preserves deep destination safely
-  const pathname = '/admin/orders'
-  const redirectUrl = `/admin/login?next=${encodeURIComponent(pathname)}`
-  assert.equal(redirectUrl, '/admin/login?next=%2Fadmin%2Forders')
-
-  // Upon login, safeAdminReturnPath allows the deep destination
-  assert.equal(safeAdminReturnPath(pathname), '/admin/orders')
-})
-
-// ---------------------------------------------------------------------------
-// Test C: Authenticated non-admin user visits /admin -> access denied
-// ---------------------------------------------------------------------------
-test('Test C: Authenticated non-admin customer visits /admin -> access denied (403 Forbidden)', async () => {
-  const customerUser = { id: 'cust-123', email: 'customer@example.com' }
-  const customerProfile = { id: 'cust-123', role: 'customer', full_name: 'Regular Customer' }
-
-  const mockDb = createMockDb({ user: customerUser, profile: customerProfile })
-  const req = new Request('https://speedcake.invalid/api/admin/session', {
-    headers: { Authorization: 'Bearer customer-token-abc' }
-  })
-
-  const result = await simulateVerifyAdminSession(req, mockDb)
-
-  assert.equal(result.ok, false)
-  assert.equal(result.status, 403)
-  assert.match(result.error, /Forbidden: Administrator privileges required/i)
-
-  // Pure status evaluation
-  const evaluated = evaluateAdminStatus(customerUser, customerProfile)
-  assert.equal(evaluated.ok, false)
-  assert.equal(evaluated.status, 403)
-})
-
-// ---------------------------------------------------------------------------
-// Test D: Authenticated admin visits /admin -> dashboard loads
-// ---------------------------------------------------------------------------
-test('Test D: Authenticated admin visits /admin -> authorized and dashboard loads (200 OK)', async () => {
-  const adminUser = { id: 'admin-999', email: 'owner@speedcake.com' }
-  const adminProfile = { id: 'admin-999', role: 'admin', full_name: 'Bakery Admin' }
-
-  const mockDb = createMockDb({ user: adminUser, profile: adminProfile })
-  const req = new Request('https://speedcake.invalid/api/admin/session', {
-    headers: { Authorization: 'Bearer valid-admin-jwt' }
-  })
-
-  const result = await simulateVerifyAdminSession(req, mockDb)
-
-  assert.equal(result.ok, true)
-  if (result.ok) {
-    assert.equal(result.user.id, 'admin-999')
-    assert.equal(result.user.email, 'owner@speedcake.com')
-    assert.equal(result.profile.role, 'admin')
-    assert.equal(result.profile.full_name, 'Bakery Admin')
+  // 4. Admin profile -> 200 OK
+  const admin = evaluateAdminStatus(
+    { id: 'u2', email: 'admin@speedcake.com' },
+    { id: 'u2', role: 'admin', full_name: 'Speed Cake Manager' }
+  )
+  assert.equal(admin.ok, true)
+  if (admin.ok) {
+    assert.equal(admin.user.id, 'u2')
+    assert.equal(admin.profile.role, 'admin')
   }
 })
 
 // ---------------------------------------------------------------------------
-// Test E: Admin logs out -> session ends and protected admin pages are inaccessible
+// 3. verifyAdminSession security migration tests
 // ---------------------------------------------------------------------------
-test('Test E: Admin logs out -> session ends and protected admin pages are inaccessible', async () => {
-  let activeSession = { token: 'admin-token', user: { id: 'admin-999' } }
+test('verifyAdminSession: Unauthenticated admin request returns 401 Missing token', async () => {
+  const mockDb = createMockDb()
+  const req = new Request('https://speedcake.invalid/api/admin/orders')
+  const res = await verifyAdminSession(req, mockDb)
 
-  // Admin is initially active
-  const adminProfile = { id: 'admin-999', role: 'admin', full_name: 'Bakery Admin' }
-  const mockDb = createMockDb({ user: activeSession.user, profile: adminProfile })
-
-  let req = new Request('https://speedcake.invalid/api/admin/session', {
-    headers: { Authorization: `Bearer ${activeSession.token}` }
-  })
-  let res = await simulateVerifyAdminSession(req, mockDb)
-  assert.equal(res.ok, true)
-
-  // Admin logs out (simulates supabase.auth.signOut())
-  activeSession = null
-
-  // Next verification attempt has no session token
-  const loggedOutReq = new Request('https://speedcake.invalid/api/admin/session')
-  const loggedOutRes = await simulateVerifyAdminSession(loggedOutReq, mockDb)
-
-  assert.equal(loggedOutRes.ok, false)
-  assert.equal(loggedOutRes.status, 401)
-
-  // Route guard redirects unauthenticated user to /admin/login
-  const nextTarget = '/admin/login'
-  assert.equal(nextTarget, '/admin/login')
+  assert.equal(res.ok, false)
+  assert.equal(res.status, 401)
+  assert.match(res.error, /Missing token/i)
 })
 
-// ---------------------------------------------------------------------------
-// Test F: Refreshing /admin while authenticated keeps session intact and loads dashboard
-// ---------------------------------------------------------------------------
-test('Test F: Refreshing /admin while authenticated as admin preserves session and dashboard access', async () => {
-  const adminUser = { id: 'admin-999', email: 'owner@speedcake.com' }
-  const adminProfile = { id: 'admin-999', role: 'admin', full_name: 'Bakery Admin' }
-  const mockDb = createMockDb({ user: adminUser, profile: adminProfile })
-
-  // First visit
-  const req1 = new Request('https://speedcake.invalid/api/admin/session', {
-    headers: { Authorization: 'Bearer persistent-admin-token' }
+test('verifyAdminSession: speedcake_admin_token cookie alone is rejected (cookies no longer accepted)', async () => {
+  const mockDb = createMockDb()
+  const req = new Request('https://speedcake.invalid/api/admin/orders', {
+    headers: {
+      Cookie: 'speedcake_admin_token=sc_admin_token_SpeedCake2026_secured; other=123',
+    },
   })
-  const res1 = await simulateVerifyAdminSession(req1, mockDb)
+  const res = await verifyAdminSession(req, mockDb)
+
+  // Authorization must now come via Authorization: Bearer <token>
+  assert.equal(res.ok, false)
+  assert.equal(res.status, 401)
+})
+
+test('verifyAdminSession: Old hardcoded admin token is rejected as invalid session', async () => {
+  const mockDb = createMockDb()
+  const req = new Request('https://speedcake.invalid/api/admin/orders', {
+    headers: {
+      Authorization: 'Bearer sc_admin_token_SpeedCake2026_secured',
+    },
+  })
+  const res = await verifyAdminSession(req, mockDb)
+
+  assert.equal(res.ok, false)
+  assert.equal(res.status, 401)
+  assert.match(res.error, /Invalid session/i)
+})
+
+test('verifyAdminSession: Invalid or expired Supabase token returns 401', async () => {
+  const mockDb = createMockDb()
+  const req = new Request('https://speedcake.invalid/api/admin/orders', {
+    headers: {
+      Authorization: 'Bearer invalid-or-expired-supabase-jwt',
+    },
+  })
+  const res = await verifyAdminSession(req, mockDb)
+
+  assert.equal(res.ok, false)
+  assert.equal(res.status, 401)
+  assert.match(res.error, /Invalid session/i)
+})
+
+test('verifyAdminSession: Authenticated customer (role === "customer") receives 403 Forbidden', async () => {
+  const mockDb = createMockDb({
+    tokenUserMap: {
+      'customer-valid-jwt': { id: 'cust-uuid-1', email: 'customer@example.com' },
+    },
+    profiles: {
+      'cust-uuid-1': { id: 'cust-uuid-1', role: 'customer', full_name: 'Customer One' },
+    },
+  })
+
+  const req = new Request('https://speedcake.invalid/api/admin/orders', {
+    headers: {
+      Authorization: 'Bearer customer-valid-jwt',
+    },
+  })
+  const res = await verifyAdminSession(req, mockDb)
+
+  assert.equal(res.ok, false)
+  assert.equal(res.status, 403)
+  assert.match(res.error, /Administrator privileges required/i)
+})
+
+test('verifyAdminSession: Authenticated admin (role === "admin") is granted access', async () => {
+  const mockDb = createMockDb({
+    tokenUserMap: {
+      'admin-valid-jwt': { id: 'admin-uuid-1', email: 'admin@speedcake.com' },
+    },
+    profiles: {
+      'admin-uuid-1': { id: 'admin-uuid-1', role: 'admin', full_name: 'Head Baker' },
+    },
+  })
+
+  const req = new Request('https://speedcake.invalid/api/admin/orders', {
+    headers: {
+      Authorization: 'Bearer admin-valid-jwt',
+    },
+  })
+  const res = await verifyAdminSession(req, mockDb)
+
+  assert.equal(res.ok, true)
+  if (res.ok) {
+    assert.equal(res.user.id, 'admin-uuid-1')
+    assert.equal(res.user.email, 'admin@speedcake.com')
+    assert.equal(res.profile.role, 'admin')
+  }
+})
+
+test('verifyAdminSession: Page refresh preserves authenticated admin session', async () => {
+  const mockDb = createMockDb({
+    tokenUserMap: {
+      'persisted-supabase-session-jwt': { id: 'admin-uuid-1', email: 'admin@speedcake.com' },
+    },
+    profiles: {
+      'admin-uuid-1': { id: 'admin-uuid-1', role: 'admin', full_name: 'Head Baker' },
+    },
+  })
+
+  // Initial page load
+  const req1 = new Request('https://speedcake.invalid/api/admin/session', {
+    headers: { Authorization: 'Bearer persisted-supabase-session-jwt' },
+  })
+  const res1 = await verifyAdminSession(req1, mockDb)
   assert.equal(res1.ok, true)
 
-  // User refreshes the page (subsequent request with same persisted token)
+  // Page refresh with same persisted Supabase session
   const req2 = new Request('https://speedcake.invalid/api/admin/session', {
-    headers: { Authorization: 'Bearer persistent-admin-token' }
+    headers: { Authorization: 'Bearer persisted-supabase-session-jwt' },
   })
-  const res2 = await simulateVerifyAdminSession(req2, mockDb)
+  const res2 = await verifyAdminSession(req2, mockDb)
   assert.equal(res2.ok, true)
   if (res2.ok) {
-    assert.equal(res2.user.id, adminUser.id)
+    assert.equal(res2.user.id, 'admin-uuid-1')
     assert.equal(res2.profile.role, 'admin')
   }
+})
+
+test('verifyAdminSession: Logout removes admin session and invalidates access', async () => {
+  const mockDb = createMockDb({
+    tokenUserMap: {
+      'active-jwt': { id: 'admin-uuid-1', email: 'admin@speedcake.com' },
+    },
+    profiles: {
+      'admin-uuid-1': { id: 'admin-uuid-1', role: 'admin', full_name: 'Head Baker' },
+    },
+  })
+
+  // Before logout: access allowed
+  const beforeReq = new Request('https://speedcake.invalid/api/admin/orders', {
+    headers: { Authorization: 'Bearer active-jwt' },
+  })
+  const beforeRes = await verifyAdminSession(beforeReq, mockDb)
+  assert.equal(beforeRes.ok, true)
+
+  // After logout: token is absent
+  const afterReq = new Request('https://speedcake.invalid/api/admin/orders')
+  const afterRes = await verifyAdminSession(afterReq, mockDb)
+  assert.equal(afterRes.ok, false)
+  assert.equal(afterRes.status, 401)
+})
+
+test('API security: Customer cannot access admin product or order APIs directly', async () => {
+  const mockDb = createMockDb({
+    tokenUserMap: {
+      'cust-jwt': { id: 'cust-10', email: 'customer10@speedcake.com' },
+    },
+    profiles: {
+      'cust-10': { id: 'cust-10', role: 'customer', full_name: 'Jane Doe' },
+    },
+  })
+
+  // Customer tries to call GET /api/admin/products
+  const prodReq = new Request('https://speedcake.invalid/api/admin/products', {
+    headers: { Authorization: 'Bearer cust-jwt' },
+  })
+  const prodRes = await verifyAdminSession(prodReq, mockDb)
+  assert.equal(prodRes.ok, false)
+  assert.equal(prodRes.status, 403)
+
+  // Customer tries to call GET /api/admin/orders
+  const orderReq = new Request('https://speedcake.invalid/api/admin/orders', {
+    headers: { Authorization: 'Bearer cust-jwt' },
+  })
+  const orderRes = await verifyAdminSession(orderReq, mockDb)
+  assert.equal(orderRes.ok, false)
+  assert.equal(orderRes.status, 403)
+
+  // Customer tries to call PATCH /api/admin/orders/1/status
+  const statusReq = new Request('https://speedcake.invalid/api/admin/orders/1/status', {
+    method: 'PATCH',
+    headers: { Authorization: 'Bearer cust-jwt' },
+  })
+  const statusRes = await verifyAdminSession(statusReq, mockDb)
+  assert.equal(statusRes.ok, false)
+  assert.equal(statusRes.status, 403)
 })

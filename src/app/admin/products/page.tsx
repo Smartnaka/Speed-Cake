@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { naira } from '@/lib/demo-products'
 import type { AdminProductRecord, CategoryRecord } from '@/lib/catalogue-db'
+import { getAdminAuthHeader } from '@/lib/admin-client-auth'
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<AdminProductRecord[]>([])
@@ -30,17 +31,13 @@ export default function AdminProductsPage() {
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [togglingId, setTogglingId] = useState<string | null>(null)
 
-  function getAuthHeader(): Record<string, string> {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('speedcake_admin_token') : null
-    return token ? { Authorization: `Bearer ${token}` } : {}
-  }
-
   async function loadData() {
     setLoading(true)
     try {
+      const headers = await getAdminAuthHeader()
       const [prodsRes, catsRes] = await Promise.all([
-        fetch('/api/admin/products', { headers: getAuthHeader() }),
-        fetch('/api/admin/categories', { headers: getAuthHeader() }),
+        fetch('/api/admin/products', { headers }),
+        fetch('/api/admin/categories', { headers }),
       ])
 
       const prodsData = await prodsRes.json()
@@ -73,7 +70,7 @@ export default function AdminProductsPage() {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          ...getAuthHeader(),
+          ...(await getAdminAuthHeader()),
         },
         body: JSON.stringify({ active: !p.active }),
       })
