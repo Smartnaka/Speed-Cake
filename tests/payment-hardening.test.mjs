@@ -38,3 +38,13 @@ test('confirmation remains a single atomic database RPC without API update fallb
   assert.match(migration, /select \* into o from public\.orders where id = p\.order_id for update/)
   assert.match(migration, /payments_one_pending_attempt_idx/)
 })
+test('a retry atomically supersedes an abandoned pending attempt before creating the next one', async () => {
+  const fs = await import('node:fs/promises')
+  const migration = await fs.readFile(
+    new URL('../supabase/migrations/202610030004_retry_supersedes_pending_attempt.sql', import.meta.url),
+    'utf8'
+  )
+  assert.match(migration, /select \* into o from public\.orders where id = target_order for update/)
+  assert.match(migration, /update public\.payments\s+set status = 'failed'\s+where order_id = o\.id and status = 'pending'/)
+  assert.match(migration, /insert into public\.payments\(order_id, reference, amount_kobo, currency, status\)/)
+})
