@@ -35,8 +35,8 @@ export async function POST(req: Request) {
     if (payment.status === 'success') return NextResponse.json({ received: true, already_processed: true })
 
     let result
-    try { result = await verifyPaystackTransaction(reference, secret) } catch (error) {
-      console.error('Webhook Paystack verification network failure', { reference, error })
+    try { result = await verifyPaystackTransaction(reference, secret) } catch {
+      console.error('Webhook Paystack verification network failure', { reference })
       return NextResponse.json({ error: 'Verification service unavailable.' }, { status: 502 })
     }
     const order = payment.orders as any
@@ -50,8 +50,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Payment confirmation failed.' }, { status: 503 })
     }
     return NextResponse.json({ received: true })
-  } catch (error) {
-    console.error('Webhook processing error', error)
+  } catch {
+    console.error('Webhook processing failed')
     return NextResponse.json({ error: 'Webhook processing failed.' }, { status: 500 })
   }
 }

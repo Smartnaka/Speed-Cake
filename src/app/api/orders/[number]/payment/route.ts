@@ -84,10 +84,11 @@ export async function POST(req: Request, { params }: { params: { number: string 
           },
         }),
       })
-    } catch (netErr) {
-      console.error('Paystack retry network error:', netErr)
-      try { await failAttempt() } catch (error) {
-        console.error('Payment retry failure recording failed', { reference, error })
+    } catch {
+      // Gateway error objects can contain request/response details; retain only an event marker.
+      console.error('Paystack retry initialization network failure')
+      try { await failAttempt() } catch {
+        console.error('Payment retry failure recording failed', { reference })
         return NextResponse.json({ error: 'Payment initialization state is unavailable. Please contact support.' }, { status: 503 })
       }
       return NextResponse.json(
@@ -98,9 +99,9 @@ export async function POST(req: Request, { params }: { params: { number: string 
 
     const body = await paystackResponse.json().catch(() => null)
     if (!paystackResponse.ok || !body?.status || !body?.data?.authorization_url) {
-      console.error('Paystack retry initialization error:', body)
-      try { await failAttempt() } catch (error) {
-        console.error('Payment retry failure recording failed', { reference, error })
+      console.error('Paystack retry initialization rejected', { status: paystackResponse.status, reference })
+      try { await failAttempt() } catch {
+        console.error('Payment retry failure recording failed', { reference })
         return NextResponse.json({ error: 'Payment initialization state is unavailable. Please contact support.' }, { status: 503 })
       }
       return NextResponse.json(
@@ -114,8 +115,8 @@ export async function POST(req: Request, { params }: { params: { number: string 
       reference,
       order_number: order.order_number,
     })
-  } catch (err) {
-    console.error('Payment retry error:', err)
+  } catch {
+    console.error('Payment retry processing failed')
     return NextResponse.json(
       { error: 'Unable to reinitialize payment. Please try again.' },
       { status: 500 }
