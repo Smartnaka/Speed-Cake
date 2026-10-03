@@ -38,7 +38,6 @@ test('confirmation remains a single atomic database RPC without API update fallb
   assert.match(migration, /select \* into o from public\.orders where id = p\.order_id for update/)
   assert.match(migration, /payments_one_pending_attempt_idx/)
 })
-
 test('a retry atomically supersedes an abandoned pending attempt before creating the next one', async () => {
   const fs = await import('node:fs/promises')
   const migration = await fs.readFile(
