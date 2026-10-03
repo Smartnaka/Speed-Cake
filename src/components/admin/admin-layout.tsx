@@ -11,7 +11,6 @@ import {
   Package,
   Settings,
   ShoppingBag,
-  Truck,
   UserCheck,
   X,
 } from 'lucide-react'
@@ -63,20 +62,10 @@ export function AdminShell({adminUser, onLogout, children}: AdminShellProps) {
       active: pathname.startsWith('/admin/categories'),
     },
     {
-      label: 'Delivery',
-      href: '/admin/delivery',
-      icon: Truck,
-      active: pathname === '/admin/delivery',
-      badge: 'Later',
-      disabled: true,
-    },
-    {
       label: 'Settings',
       href: '/admin/settings',
       icon: Settings,
       active: pathname === '/admin/settings',
-      badge: 'Later',
-      disabled: true,
     },
   ]
 

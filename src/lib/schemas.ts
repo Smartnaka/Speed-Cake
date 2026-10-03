@@ -116,6 +116,24 @@ export const checkoutSchema = checkoutBaseSchema.superRefine(refineCheckoutFulfi
 
 export type CheckoutInput = z.infer<typeof checkoutSchema>
 
+const storeSettingText = (label: string, max: number) =>
+  z.string().trim().min(1, `${label} is required`).max(max, `${label} cannot exceed ${max} characters`)
+
+/** The complete, allow-listed payload accepted by the admin settings endpoint. */
+export const storeSettingsSchema = z.object({
+  store_name: storeSettingText('Store name', 150),
+  store_email: z.string().trim().email('Please enter a valid store email address').max(150),
+  store_phone: z.string().trim().min(7, 'Store phone number must be at least 7 characters').max(25).regex(phoneRegex, 'Please enter a valid store phone number'),
+  store_address: storeSettingText('Store address', 300),
+  city: storeSettingText('City', 100),
+  state: storeSettingText('State', 100),
+  country: storeSettingText('Country', 100),
+  support_email: z.string().trim().email('Please enter a valid support email address').max(150),
+  support_phone: z.string().trim().min(7, 'Support phone number must be at least 7 characters').max(25).regex(phoneRegex, 'Please enter a valid support phone number'),
+}).strict()
+
+export type StoreSettingsInput = z.infer<typeof storeSettingsSchema>
+
 export const statusTransitions: Record<string, string[]> = {
   pending_payment: ['paid', 'cancelled'],
   paid: ['confirmed', 'cancelled', 'refund_pending'],
