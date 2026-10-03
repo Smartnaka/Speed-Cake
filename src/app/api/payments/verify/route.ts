@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { paymentMatchesLocalRecord, isPaymentReference, verifyPaystackTransaction } from '@/lib/paystack'
 import { supabaseAdmin } from '@/lib/supabase/server'
+import { sendOrderConfirmationEmail } from '@/lib/email/service'
 
 export async function POST(req: Request) {
   try {
@@ -52,6 +53,9 @@ export async function POST(req: Request) {
       console.error('Atomic payment confirmation failed', { reference, code: confirmError.code })
       return NextResponse.json({ error: 'Payment was verified but is awaiting confirmation. Please try again shortly.' }, { status: 503 })
     }
+
+    // Dispatches idempotent customer receipt and bakery team alert
+    void sendOrderConfirmationEmail(order.id).catch(() => {})
 
     return NextResponse.json({ order_number: order.order_number, status: 'success', already_processed: false })
   } catch {

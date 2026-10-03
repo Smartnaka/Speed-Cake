@@ -1,5 +1,5 @@
-import { supabaseAdmin } from '@/lib/supabase/server'
-import type { OrderFilterInput } from '@/lib/schemas'
+import { supabaseAdmin } from './supabase/server.ts'
+import type { OrderFilterInput } from './schemas.ts'
 
 export interface OrderItemRecord { id: string; order_id: string; product_id: string | null; product_snapshot: { name: string; slug?: string; image?: string }; variant_snapshot: { id?: string; name: string; price_kobo: number; base_price_kobo?: number }; customization: { message?: string; choices?: Array<{ kind: string; label: string; value: string; fee_kobo: number }> }; quantity: number; line_total_kobo: number }
 export interface PaymentRecord { id: string; order_id: string; reference: string; transaction_id?: string | null; amount_kobo: number; currency: string; status: string; verified_at?: string | null; created_at: string }

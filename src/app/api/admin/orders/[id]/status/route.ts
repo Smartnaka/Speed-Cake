@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { verifyAdminSession } from '@/lib/admin-auth'
 import { updateOrderStatusSchema } from '@/lib/schemas'
 import { updateOrderStatus } from '@/lib/orders-db'
+import { sendOrderStatusUpdateEmail } from '@/lib/email/service'
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   const auth = await verifyAdminSession(req)
@@ -26,6 +27,15 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       auth.user!.id,
       parsed.data.expected_updated_at
     )
+
+    // Asynchronously dispatch customer status notification
+    void sendOrderStatusUpdateEmail({
+      orderIdOrNumber: updatedOrder.id,
+      newStatus: parsed.data.status,
+      note: parsed.data.note,
+    }).catch(err => {
+      console.error('Failed to dispatch status update email:', err)
+    })
 
     return NextResponse.json({ ok: true, order: updatedOrder })
   } catch (err) {

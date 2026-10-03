@@ -1,5 +1,5 @@
-import { supabaseAdmin } from '@/lib/supabase/server'
-import type { StoreSettingsInput } from '@/lib/schemas'
+import { supabaseAdmin } from './supabase/server.ts'
+import type { StoreSettingsInput } from './schemas.ts'
 
 export interface StoreSettings extends StoreSettingsInput {
   id: 'store'

@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 import { NextResponse } from 'next/server'
 import { paymentMatchesLocalRecord, isPaymentReference, verifyPaystackTransaction } from '@/lib/paystack'
 import { supabaseAdmin } from '@/lib/supabase/server'
+import { sendOrderConfirmationEmail } from '@/lib/email/service'
 
 export async function POST(req: Request) {
   try {
@@ -49,6 +50,10 @@ export async function POST(req: Request) {
       console.error('Atomic webhook confirmation failed', { reference, code: confirmError.code })
       return NextResponse.json({ error: 'Payment confirmation failed.' }, { status: 503 })
     }
+
+    // Dispatches idempotent customer receipt and bakery team alert
+    void sendOrderConfirmationEmail(order.id).catch(() => {})
+
     return NextResponse.json({ received: true })
   } catch {
     console.error('Webhook processing failed')
