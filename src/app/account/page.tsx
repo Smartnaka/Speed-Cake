@@ -9,7 +9,8 @@ import {safeReturnPath} from '@/lib/schemas'
 
 function AccountContent(){
   const params=useSearchParams(),router=useRouter()
-  const [mode,setMode]=useState<'login'|'signup'|'reset'|'new-password'>('login')
+  const initialMode = params.get('mode') === 'signup' ? 'signup' as const : 'login' as const
+  const [mode,setMode]=useState<'login'|'signup'|'reset'|'new-password'>(initialMode)
   const [email,setEmail]=useState(''),[password,setPassword]=useState(''),[name,setName]=useState(''),[message,setMessage]=useState(''),[busy,setBusy]=useState(false),[session,setSession]=useState<any>(null),[orders,setOrders]=useState<any[]>([])
   const next=params.get('next')||'/account'
   const safeNext=safeReturnPath(next)
