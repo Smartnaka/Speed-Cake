@@ -53,6 +53,10 @@ export interface AdminOrderRecord {
   customer_name: string
   customer_email: string
   customer_phone: string
+  fulfillment_type?: string
+  first_name?: string
+  last_name?: string
+  country?: string
   delivery_address: string
   city: string
   state: string
@@ -363,7 +367,7 @@ export async function getAdminOrders(filter: OrderFilterInput): Promise<OrdersQu
   let query = db
     .from('orders')
     .select(
-      'id, order_number, user_id, customer_name, customer_email, customer_phone, delivery_address, city, state, landmark, delivery_instructions, delivery_zone_id, delivery_date, delivery_window, delivery_charge_kobo, subtotal_kobo, total_kobo, status, payment_status, admin_notes, created_at, updated_at',
+      'id, order_number, user_id, customer_name, customer_email, customer_phone, fulfillment_type, first_name, last_name, country, delivery_address, city, state, landmark, delivery_instructions, delivery_zone_id, delivery_date, delivery_window, delivery_charge_kobo, subtotal_kobo, total_kobo, status, payment_status, admin_notes, created_at, updated_at',
       { count: 'exact' }
     )
     .order('created_at', { ascending: false })
@@ -395,6 +399,10 @@ export async function getAdminOrders(filter: OrderFilterInput): Promise<OrdersQu
   return {
     orders: (data || []).map((o: any) => ({
       ...o,
+      fulfillment_type: o.fulfillment_type || (o.delivery_window === 'Store Pickup' ? 'pickup' : 'delivery'),
+      first_name: o.first_name || (o.customer_name ? o.customer_name.split(' ')[0] : ''),
+      last_name: o.last_name || (o.customer_name ? o.customer_name.split(' ').slice(1).join(' ') : ''),
+      country: o.country || 'Nigeria',
       delivery_charge_kobo: Number(o.delivery_charge_kobo),
       subtotal_kobo: Number(o.subtotal_kobo),
       total_kobo: Number(o.total_kobo),
@@ -422,7 +430,7 @@ export async function getAdminOrderById(id: string): Promise<AdminOrderRecord | 
   let query = db
     .from('orders')
     .select(
-      'id, order_number, user_id, customer_name, customer_email, customer_phone, delivery_address, city, state, landmark, delivery_instructions, delivery_zone_id, delivery_date, delivery_window, delivery_charge_kobo, subtotal_kobo, total_kobo, status, payment_status, admin_notes, created_at, updated_at, order_items(id, order_id, product_id, product_snapshot, variant_snapshot, customization, quantity, line_total_kobo), payments(id, order_id, reference, transaction_id, amount_kobo, currency, status, verified_at, created_at), order_status_history(id, order_id, status, note, actor_id, created_at)'
+      'id, order_number, user_id, customer_name, customer_email, customer_phone, fulfillment_type, first_name, last_name, country, delivery_address, city, state, landmark, delivery_instructions, delivery_zone_id, delivery_date, delivery_window, delivery_charge_kobo, subtotal_kobo, total_kobo, status, payment_status, admin_notes, created_at, updated_at, order_items(id, order_id, product_id, product_snapshot, variant_snapshot, customization, quantity, line_total_kobo), payments(id, order_id, reference, transaction_id, amount_kobo, currency, status, verified_at, created_at), order_status_history(id, order_id, status, note, actor_id, created_at)'
     )
 
   if (isUUID) {
@@ -442,6 +450,10 @@ export async function getAdminOrderById(id: string): Promise<AdminOrderRecord | 
 
   return {
     ...data,
+    fulfillment_type: data.fulfillment_type || (data.delivery_window === 'Store Pickup' ? 'pickup' : 'delivery'),
+    first_name: data.first_name || (data.customer_name ? data.customer_name.split(' ')[0] : ''),
+    last_name: data.last_name || (data.customer_name ? data.customer_name.split(' ').slice(1).join(' ') : ''),
+    country: data.country || 'Nigeria',
     delivery_charge_kobo: Number(data.delivery_charge_kobo),
     subtotal_kobo: Number(data.subtotal_kobo),
     total_kobo: Number(data.total_kobo),

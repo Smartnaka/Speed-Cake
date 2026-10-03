@@ -16,6 +16,7 @@ import {
   Search,
   ShoppingBag,
   Truck,
+  Store,
   User,
   X,
 } from 'lucide-react'
@@ -286,20 +287,25 @@ export default function AdminOrdersPage() {
 
                       {/* Delivery Date & Window */}
                       <td className="py-3.5 px-4 text-[#352c28]">
-                        {order.delivery_date ? (
+                        {order.fulfillment_type === 'pickup' || order.delivery_window === 'Store Pickup' ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                            <Store size={12} />
+                            <span>Store Pickup</span>
+                          </span>
+                        ) : order.delivery_date ? (
                           <>
                             <div className="flex items-center gap-1 font-medium text-xs">
                               <Calendar size={13} className="text-[#867872]" />
                               <span>{order.delivery_date}</span>
                             </div>
                             <div className="text-xs text-[#867872] mt-0.5">{order.delivery_window || 'Standard window'}</div>
+                            <div className="text-xs text-[#867872] truncate max-w-[160px] mt-0.5" title={order.delivery_address}>
+                              {order.city ? `${order.city}, ${order.state}` : order.delivery_address}
+                            </div>
                           </>
                         ) : (
                           <span className="text-xs text-[#867872]">Not scheduled</span>
                         )}
-                        <div className="text-xs text-[#867872] truncate max-w-[160px] mt-0.5" title={order.delivery_address}>
-                          {order.city ? `${order.city}, ${order.state}` : order.delivery_address}
-                        </div>
                       </td>
 
                       {/* Items */}

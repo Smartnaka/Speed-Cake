@@ -1,6 +1,132 @@
 import {z} from 'zod'
-export const checkoutSchema=z.object({name:z.string().trim().min(2).max(120),email:z.string().email(),phone:z.string().trim().min(7).max(25),address:z.string().trim().min(5).max(300),city:z.string().trim().min(2).max(100),state:z.string().trim().min(2).max(100),landmark:z.string().max(200).optional(),instructions:z.string().max(500).optional(),delivery_date:z.string().date(),delivery_window:z.string().min(3).max(100),items:z.array(z.object({productId:z.string().uuid(),variantId:z.string().uuid(),quantity:z.number().int().min(1).max(30),customization:z.object({message:z.string().max(45).optional(),choices:z.record(z.string().uuid(),z.array(z.string().max(120)).max(30)).optional()}).optional()})).min(1).max(30)})
-export const statusTransitions:Record<string,string[]>={pending_payment:['paid','cancelled'],paid:['confirmed','cancelled','refund_pending'],confirmed:['preparing','cancelled','refund_pending'],preparing:['ready','cancelled','refund_pending'],ready:['out_for_delivery','cancelled','refund_pending'],out_for_delivery:['delivered','refund_pending'],delivered:['refund_pending'],refund_pending:['refunded'],cancelled:[],refunded:[]}
+
+export const DELIVERY_TIME_WINDOWS = [
+  '9:00 AM – 12:00 PM',
+  '12:00 PM – 3:00 PM',
+  '3:00 PM – 6:00 PM',
+  '6:00 PM – 9:00 PM',
+] as const
+
+export type DeliveryTimeWindow = (typeof DELIVERY_TIME_WINDOWS)[number]
+
+export const fulfillmentTypeSchema = z.enum(['delivery', 'pickup'])
+export type FulfillmentType = z.infer<typeof fulfillmentTypeSchema>
+
+const phoneRegex = /^\+?[0-9\s\-()]{7,25}$/
+
+export const checkoutItemSchema = z.object({
+  productId: z.string().uuid(),
+  variantId: z.string().uuid(),
+  quantity: z.number().int().min(1).max(30),
+  customization: z
+    .object({
+      message: z.string().max(45).optional(),
+      choices: z.record(z.string().uuid(), z.array(z.string().max(120)).max(30)).optional(),
+    })
+    .optional(),
+})
+
+export const checkoutBaseSchema = z.object({
+  fulfillment_type: fulfillmentTypeSchema.default('delivery'),
+  first_name: z.string().trim().min(1, 'First name is required').max(60, 'First name cannot exceed 60 characters'),
+  last_name: z.string().trim().min(1, 'Last name is required').max(60, 'Last name cannot exceed 60 characters'),
+  country: z.string().trim().min(2, 'Country / Region is required').max(100).default('Nigeria'),
+  phone: z
+    .string()
+    .trim()
+    .min(7, 'Phone number must be at least 7 digits')
+    .max(25, 'Phone number cannot exceed 25 characters')
+    .regex(phoneRegex, 'Please enter a valid phone number'),
+  email: z.string().trim().email('Please enter a valid email address').max(150),
+  city: z.string().trim().min(2, 'Town / City is required').max(100),
+  state: z.string().trim().min(2, 'State is required').max(100),
+  address: z.string().trim().max(300).optional().nullable(),
+  landmark: z.string().trim().max(200).optional().nullable(),
+  instructions: z.string().trim().max(500).optional().nullable(),
+  delivery_date: z.string().trim().optional().nullable(),
+  delivery_window: z.string().trim().optional().nullable(),
+  name: z.string().trim().optional(), // For backward compatibility
+  items: z.array(checkoutItemSchema).min(1, 'Your order must contain at least one cake').max(30),
+})
+
+function refineCheckoutFulfillment(
+  data: {
+    fulfillment_type: 'delivery' | 'pickup'
+    address?: string | null
+    delivery_date?: string | null
+    delivery_window?: string | null
+  },
+  ctx: z.RefinementCtx
+) {
+  const isDelivery = data.fulfillment_type === 'delivery'
+
+  if (isDelivery) {
+    // Address is required for delivery
+    if (!data.address || data.address.trim().length < 5) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'A valid delivery street address (at least 5 characters) is required',
+        path: ['address'],
+      })
+    }
+
+    // Delivery date is required and cannot be in the past
+    if (!data.delivery_date || !/^\d{4}-\d{2}-\d{2}$/.test(data.delivery_date)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'A valid delivery date (YYYY-MM-DD) is required',
+        path: ['delivery_date'],
+      })
+    } else {
+      const todayStr = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Africa/Lagos',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).format(new Date())
+
+      if (data.delivery_date < todayStr) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Delivery date cannot be in the past',
+          path: ['delivery_date'],
+        })
+      }
+    }
+
+    // Delivery window is required and must be configured
+    if (!data.delivery_window || !(DELIVERY_TIME_WINDOWS as readonly string[]).includes(data.delivery_window)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Please choose an available delivery window',
+        path: ['delivery_window'],
+      })
+    }
+  }
+}
+
+export const checkoutFormSchema = checkoutBaseSchema
+  .omit({ items: true })
+  .superRefine(refineCheckoutFulfillment)
+
+export type CheckoutFormInput = z.infer<typeof checkoutFormSchema>
+
+export const checkoutSchema = checkoutBaseSchema.superRefine(refineCheckoutFulfillment)
+
+export type CheckoutInput = z.infer<typeof checkoutSchema>
+
+export const statusTransitions: Record<string, string[]> = {
+  pending_payment: ['paid', 'cancelled'],
+  paid: ['confirmed', 'cancelled', 'refund_pending'],
+  confirmed: ['preparing', 'cancelled', 'refund_pending'],
+  preparing: ['ready', 'cancelled', 'refund_pending'],
+  ready: ['out_for_delivery', 'cancelled', 'refund_pending'],
+  out_for_delivery: ['delivered', 'refund_pending'],
+  delivered: ['refund_pending'],
+  refund_pending: ['refunded'],
+  cancelled: [],
+  refunded: [],
+}
 export function canTransition(from:string,to:string){return statusTransitions[from]?.includes(to)??false}
 
 export function safeReturnPath(value?: string | null): string {

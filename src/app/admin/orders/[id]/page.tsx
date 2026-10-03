@@ -18,6 +18,7 @@ import {
   Package,
   Phone,
   ShieldCheck,
+  Store,
   Truck,
   User,
   XCircle,
@@ -307,65 +308,95 @@ export default function AdminOrderDetailPage({ params }: { params: { id: string 
 
           {/* Section: Delivery & Fulfillment */}
           <div className="bg-white border border-[#e5d9d1] rounded p-6 shadow-sm">
-            <h2 className="text-base font-serif font-semibold text-[#352c28] flex items-center gap-2 pb-3 border-b border-[#eee4dc] mb-4">
-              <Truck size={18} className="text-[#6f3d36]" />
-              <span>Delivery Details</span>
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-              <div className="space-y-3">
-                <div className="flex items-start gap-2 text-[#756862]">
-                  <MapPin size={16} className="text-[#6f3d36] flex-shrink-0 mt-0.5" />
-                  <div>
-                    <span className="block text-xs uppercase tracking-wider font-semibold text-[#867872]">
-                      Destination Address
-                    </span>
-                    <p className="text-[#352c28] mt-1 font-medium">{order.delivery_address}</p>
-                    <p className="text-[#756862]">
-                      {order.city ? `${order.city}, ${order.state}` : ''}
-                    </p>
-                    {order.landmark && (
-                      <p className="text-xs text-[#867872] mt-0.5">
-                        Landmark: <span className="text-[#352c28]">{order.landmark}</span>
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {order.delivery_instructions && (
-                  <div className="bg-[#fbf7f4] border border-[#e5d9d1] p-3 rounded text-xs text-[#756862]">
-                    <span className="font-semibold text-[#352c28] block mb-1">Driver Instructions:</span>
-                    {order.delivery_instructions}
-                  </div>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 border-b border-[#eee4dc] mb-4">
+              <h2 className="text-base font-serif font-semibold text-[#352c28] flex items-center gap-2">
+                {order.fulfillment_type === 'pickup' || order.delivery_window === 'Store Pickup' ? (
+                  <Store size={18} className="text-[#6f3d36]" />
+                ) : (
+                  <Truck size={18} className="text-[#6f3d36]" />
                 )}
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-start gap-2 text-[#756862]">
-                  <Calendar size={16} className="text-[#6f3d36] flex-shrink-0 mt-0.5" />
-                  <div>
-                    <span className="block text-xs uppercase tracking-wider font-semibold text-[#867872]">
-                      Requested Delivery Date
-                    </span>
-                    <p className="text-[#352c28] mt-1 font-medium">
-                      {order.delivery_date || 'Standard fulfillment date'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2 text-[#756862]">
-                  <Clock size={16} className="text-[#6f3d36] flex-shrink-0 mt-0.5" />
-                  <div>
-                    <span className="block text-xs uppercase tracking-wider font-semibold text-[#867872]">
-                      Delivery Window
-                    </span>
-                    <p className="text-[#352c28] mt-1 font-medium">
-                      {order.delivery_window || 'Standard daytime delivery'}
-                    </p>
-                  </div>
-                </div>
-              </div>
+                <span>Fulfillment & Delivery Details</span>
+              </h2>
+              <span className={`text-[11px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded border w-fit ${
+                order.fulfillment_type === 'pickup' || order.delivery_window === 'Store Pickup'
+                  ? 'bg-amber-50 text-amber-800 border-amber-200'
+                  : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+              }`}>
+                {order.fulfillment_type === 'pickup' || order.delivery_window === 'Store Pickup'
+                  ? 'Store Pickup'
+                  : 'Home Delivery'}
+              </span>
             </div>
+
+            {order.fulfillment_type === 'pickup' || order.delivery_window === 'Store Pickup' ? (
+              <div className="p-4 bg-[#fbf7f4] border border-[#e5d9d1] rounded text-xs text-[#52443e] space-y-2">
+                <div className="font-semibold text-sm text-[#352c28]">
+                  Bakery Counter Pickup
+                </div>
+                <p className="text-[#756862]">
+                  Customer requested store pickup at <b>Speed Cake Main Bakery</b> (14 Admiralty Way, Lekki Phase 1, Lagos).
+                </p>
+                <p className="text-[#756862]">
+                  No delivery address or driver dispatch required for this order.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2 text-[#756862]">
+                    <MapPin size={16} className="text-[#6f3d36] flex-shrink-0 mt-0.5" />
+                    <div>
+                      <span className="block text-xs uppercase tracking-wider font-semibold text-[#867872]">
+                        Destination Address
+                      </span>
+                      <p className="text-[#352c28] mt-1 font-medium">{order.delivery_address}</p>
+                      <p className="text-[#756862]">
+                        {order.city ? `${order.city}, ${order.state}` : ''}
+                        {order.country ? ` · ${order.country}` : ''}
+                      </p>
+                      {order.landmark && (
+                        <p className="text-xs text-[#867872] mt-0.5">
+                          Landmark: <span className="text-[#352c28]">{order.landmark}</span>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {order.delivery_instructions && (
+                    <div className="bg-[#fbf7f4] border border-[#e5d9d1] p-3 rounded text-xs text-[#756862]">
+                      <span className="font-semibold text-[#352c28] block mb-1">Driver Instructions:</span>
+                      {order.delivery_instructions}
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2 text-[#756862]">
+                    <Calendar size={16} className="text-[#6f3d36] flex-shrink-0 mt-0.5" />
+                    <div>
+                      <span className="block text-xs uppercase tracking-wider font-semibold text-[#867872]">
+                        Requested Delivery Date
+                      </span>
+                      <p className="text-[#352c28] mt-1 font-medium">
+                        {order.delivery_date || 'Standard fulfillment date'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2 text-[#756862]">
+                    <Clock size={16} className="text-[#6f3d36] flex-shrink-0 mt-0.5" />
+                    <div>
+                      <span className="block text-xs uppercase tracking-wider font-semibold text-[#867872]">
+                        Delivery Window
+                      </span>
+                      <p className="text-[#352c28] mt-1 font-medium">
+                        {order.delivery_window || 'Standard daytime delivery'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Section: Status History Timeline */}
@@ -522,8 +553,17 @@ export default function AdminOrderDetailPage({ params }: { params: { id: string 
 
             <div className="space-y-2 text-xs">
               <div>
-                <span className="text-[#867872] block">Full Name</span>
-                <span className="font-medium text-[#352c28] text-sm">{order.customer_name}</span>
+                <span className="text-[#867872] block">Customer Name</span>
+                <span className="font-medium text-[#352c28] text-sm">
+                  {order.first_name && order.last_name
+                    ? `${order.first_name} ${order.last_name}`
+                    : order.customer_name}
+                </span>
+                {order.first_name && order.last_name && (
+                  <span className="text-[11px] text-[#867872] block">
+                    First: {order.first_name} · Last: {order.last_name}
+                  </span>
+                )}
               </div>
 
               <div>
@@ -545,6 +585,11 @@ export default function AdminOrderDetailPage({ params }: { params: { id: string 
                   <Phone size={12} className="text-[#867872]" />
                   <span>{order.customer_phone}</span>
                 </a>
+              </div>
+
+              <div>
+                <span className="text-[#867872] block">Country / Region</span>
+                <span className="text-[#352c28] font-medium">{order.country || 'Nigeria'}</span>
               </div>
 
               <div className="pt-2 border-t border-[#eee4dc]">
