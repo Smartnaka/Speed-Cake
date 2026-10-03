@@ -252,13 +252,14 @@ export type PaymentState = z.infer<typeof paymentStateSchema>
 export const updateOrderStatusSchema = z.object({
   status: orderStateSchema,
   note: z.string().trim().max(500, 'Note cannot exceed 500 characters').optional().nullable(),
+  expected_updated_at: z.string().datetime({ offset: true }),
 })
 export type UpdateOrderStatusInput = z.infer<typeof updateOrderStatusSchema>
 
 export const orderFilterSchema = z.object({
   search: z.string().trim().max(100).optional(),
-  orderStatus: z.string().trim().optional(),
-  paymentStatus: z.string().trim().optional(),
+  orderStatus: z.union([orderStateSchema, z.literal('all')]).optional(),
+  paymentStatus: z.union([paymentStateSchema, z.literal('all')]).optional(),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
 })

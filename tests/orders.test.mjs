@@ -80,23 +80,27 @@ test('canTransition strictly enforces forward and safe operational transitions',
   assert.equal(canTransition('cancelled', 'paid'), false)
 })
 
-test('updateOrderStatusSchema validates body payload', () => {
-  assert.equal(updateOrderStatusSchema.safeParse({ status: 'preparing' }).success, true)
+test('updateOrderStatusSchema validates body payload and optimistic concurrency version', () => {
+  const expected_updated_at = '2026-10-01T10:00:00.000Z'
+  assert.equal(updateOrderStatusSchema.safeParse({ status: 'preparing', expected_updated_at }).success, true)
   assert.equal(
     updateOrderStatusSchema.safeParse({
       status: 'out_for_delivery',
       note: 'Driver assigned: Ahmed (08012345678)',
+      expected_updated_at,
     }).success,
     true
   )
-  assert.equal(updateOrderStatusSchema.safeParse({ status: 'invalid_status' }).success, false)
+  assert.equal(updateOrderStatusSchema.safeParse({ status: 'invalid_status', expected_updated_at }).success, false)
   assert.equal(
     updateOrderStatusSchema.safeParse({
       status: 'delivered',
       note: 'a'.repeat(600), // Exceeds 500 chars limit
+      expected_updated_at,
     }).success,
     false
   )
+  assert.equal(updateOrderStatusSchema.safeParse({ status: 'preparing' }).success, false)
 })
 
 test('orderFilterSchema validates query params with safe defaults', () => {
