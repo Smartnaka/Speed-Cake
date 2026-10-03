@@ -38,7 +38,8 @@ export async function POST(req: Request, { params }: { params: { number: string 
       )
     }
 
-    // 3. Initialize new Paystack session for this existing order (no duplicate orders/items)
+    // Persist the attempt before initialization. A Paystack redirect is only useful when
+    // its reference is already durable and can therefore be reconciled by the webhook.
     const secret = process.env.PAYSTACK_SECRET_KEY
     if (!secret) {
       return NextResponse.json(
@@ -48,6 +49,19 @@ export async function POST(req: Request, { params }: { params: { number: string 
     }
 
     const reference = `SC-${order.order_number}-${crypto.randomUUID()}`
+    const { data: attempt, error: attemptError } = await db.rpc('create_speedcake_payment_attempt', {
+      target_order: order.id,
+      expected_user: user.id,
+      payment_reference: reference,
+    })
+    if (attemptError) {
+      console.error('Payment retry attempt creation failed:', { order: order.order_number, code: attemptError.code })
+      return NextResponse.json({ error: 'Unable to create a safe payment attempt. Please try again.' }, { status: 503 })
+    }
+    const failAttempt = async () => {
+      const { error } = await db.rpc('fail_speedcake_payment_attempt', { payment_id: attempt.id })
+      if (error) throw error
+    }
     let paystackResponse: Response
     try {
       paystackResponse = await fetch('https://api.paystack.co/transaction/initialize', {
@@ -72,6 +86,10 @@ export async function POST(req: Request, { params }: { params: { number: string 
       })
     } catch (netErr) {
       console.error('Paystack retry network error:', netErr)
+      try { await failAttempt() } catch (error) {
+        console.error('Payment retry failure recording failed', { reference, error })
+        return NextResponse.json({ error: 'Payment initialization state is unavailable. Please contact support.' }, { status: 503 })
+      }
       return NextResponse.json(
         { error: 'Could not connect to payment gateway. Please try again.' },
         { status: 502 }
@@ -81,26 +99,13 @@ export async function POST(req: Request, { params }: { params: { number: string 
     const body = await paystackResponse.json().catch(() => null)
     if (!paystackResponse.ok || !body?.status || !body?.data?.authorization_url) {
       console.error('Paystack retry initialization error:', body)
+      try { await failAttempt() } catch (error) {
+        console.error('Payment retry failure recording failed', { reference, error })
+        return NextResponse.json({ error: 'Payment initialization state is unavailable. Please contact support.' }, { status: 503 })
+      }
       return NextResponse.json(
         { error: 'Payment initialization failed. Please try again.' },
         { status: 502 }
-      )
-    }
-
-    // 4. Record new payment attempt for this order
-    const { error: paymentError } = await db.from('payments').insert({
-      order_id: order.id,
-      reference,
-      amount_kobo: order.total_kobo,
-      currency: 'NGN',
-      status: 'pending',
-    })
-
-    if (paymentError) {
-      console.error('Payment record insert error:', paymentError)
-      return NextResponse.json(
-        { error: 'Unable to record payment session. Please try again.' },
-        { status: 500 }
       )
     }
 
