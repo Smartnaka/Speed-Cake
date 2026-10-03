@@ -481,7 +481,7 @@ test('Admin authorization: Only authenticated admin can query admin order APIs',
   const unauthenticatedReq = { headers: new Map() }
   const customerUser = { id: 'cust-1', email: 'cust@speedcake.com' }
   const customerProfile = { id: 'cust-1', role: 'customer' }
-  const adminUser = { id: 'admin-1', email: 'admin@speedcake.com' }
+  const adminUser = { id: 'admin-1', email: 'admin-tester@example.com' }
   const adminProfile = { id: 'admin-1', role: 'admin' }
 
   // Unauthenticated evaluation

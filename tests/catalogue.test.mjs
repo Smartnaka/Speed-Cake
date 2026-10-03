@@ -335,7 +335,7 @@ test('Authorization: Non-admin and unauthenticated users cannot perform catalogu
   assert.equal(forbidden.status, 403)
 
   // 3. Authorized admin
-  const adminUser = { id: 'admin-uuid-1', email: 'admin@speedcake.com' }
+  const adminUser = { id: 'admin-uuid-1', email: 'admin-tester@example.com' }
   const adminProfile = { id: 'admin-uuid-1', role: 'admin' }
   const authorized = evaluateAdminStatus(adminUser, adminProfile)
   assert.equal(authorized.ok, true)

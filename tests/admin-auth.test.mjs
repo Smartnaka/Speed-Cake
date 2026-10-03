@@ -127,7 +127,7 @@ test('evaluateAdminStatus strictly enforces database role === "admin"', () => {
 
   // 4. Admin profile -> 200 OK
   const admin = evaluateAdminStatus(
-    { id: 'u2', email: 'admin@speedcake.com' },
+    { id: 'u2', email: 'admin-tester@example.com' },
     { id: 'u2', role: 'admin', full_name: 'Speed Cake Manager' }
   )
   assert.equal(admin.ok, true)
@@ -150,11 +150,11 @@ test('verifyAdminSession: Unauthenticated admin request returns 401 Missing toke
   assert.match(res.error, /Missing token/i)
 })
 
-test('verifyAdminSession: speedcake_admin_token cookie alone is rejected (cookies no longer accepted)', async () => {
+test('verifyAdminSession: legacy cookie alone is rejected (cookies no longer accepted)', async () => {
   const mockDb = createMockDb()
   const req = new Request('https://speedcake.invalid/api/admin/orders', {
     headers: {
-      Cookie: 'speedcake_admin_token=sc_admin_token_SpeedCake2026_secured; other=123',
+      Cookie: 'legacy_admin_token=legacy_session_value; other=123',
     },
   })
   const res = await verifyAdminSession(req, mockDb)
@@ -164,11 +164,11 @@ test('verifyAdminSession: speedcake_admin_token cookie alone is rejected (cookie
   assert.equal(res.status, 401)
 })
 
-test('verifyAdminSession: Old hardcoded admin token is rejected as invalid session', async () => {
+test('verifyAdminSession: Fake or static admin token is rejected as invalid session', async () => {
   const mockDb = createMockDb()
   const req = new Request('https://speedcake.invalid/api/admin/orders', {
     headers: {
-      Authorization: 'Bearer sc_admin_token_SpeedCake2026_secured',
+      Authorization: 'Bearer fake_static_token_value',
     },
   })
   const res = await verifyAdminSession(req, mockDb)
@@ -217,7 +217,7 @@ test('verifyAdminSession: Authenticated customer (role === "customer") receives 
 test('verifyAdminSession: Authenticated admin (role === "admin") is granted access', async () => {
   const mockDb = createMockDb({
     tokenUserMap: {
-      'admin-valid-jwt': { id: 'admin-uuid-1', email: 'admin@speedcake.com' },
+      'admin-valid-jwt': { id: 'admin-uuid-1', email: 'admin-tester@example.com' },
     },
     profiles: {
       'admin-uuid-1': { id: 'admin-uuid-1', role: 'admin', full_name: 'Head Baker' },
@@ -234,7 +234,7 @@ test('verifyAdminSession: Authenticated admin (role === "admin") is granted acce
   assert.equal(res.ok, true)
   if (res.ok) {
     assert.equal(res.user.id, 'admin-uuid-1')
-    assert.equal(res.user.email, 'admin@speedcake.com')
+    assert.equal(res.user.email, 'admin-tester@example.com')
     assert.equal(res.profile.role, 'admin')
   }
 })
@@ -242,7 +242,7 @@ test('verifyAdminSession: Authenticated admin (role === "admin") is granted acce
 test('verifyAdminSession: Page refresh preserves authenticated admin session', async () => {
   const mockDb = createMockDb({
     tokenUserMap: {
-      'persisted-supabase-session-jwt': { id: 'admin-uuid-1', email: 'admin@speedcake.com' },
+      'persisted-supabase-session-jwt': { id: 'admin-uuid-1', email: 'admin-tester@example.com' },
     },
     profiles: {
       'admin-uuid-1': { id: 'admin-uuid-1', role: 'admin', full_name: 'Head Baker' },
@@ -271,7 +271,7 @@ test('verifyAdminSession: Page refresh preserves authenticated admin session', a
 test('verifyAdminSession: Logout removes admin session and invalidates access', async () => {
   const mockDb = createMockDb({
     tokenUserMap: {
-      'active-jwt': { id: 'admin-uuid-1', email: 'admin@speedcake.com' },
+      'active-jwt': { id: 'admin-uuid-1', email: 'admin-tester@example.com' },
     },
     profiles: {
       'admin-uuid-1': { id: 'admin-uuid-1', role: 'admin', full_name: 'Head Baker' },

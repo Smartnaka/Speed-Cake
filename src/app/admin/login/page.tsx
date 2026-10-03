@@ -131,7 +131,7 @@ function AdminLoginContent() {
                 autoComplete="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                placeholder="admin@speedcake.com"
+                placeholder="admin@example.com"
                 className="w-full border border-[#ded0c8] bg-[#fdfbf9] px-3.5 py-3 text-sm outline-none focus:border-[#6f3d36] transition"
               />
             </div>
@@ -167,26 +167,6 @@ function AdminLoginContent() {
               )}
             </button>
           </form>
-
-          <div className="mt-6 p-3.5 bg-[#fbf7f4] border border-[#e8dcd6] text-xs text-[#52443e]">
-            <div className="font-medium text-[#6f3d36] mb-1.5 flex items-center justify-between">
-              <span className="text-[11px] uppercase tracking-wider font-semibold">Admin Credentials</span>
-              <button
-                type="button"
-                onClick={() => {
-                  setEmail('admin@speedcake.com')
-                  setPassword('SpeedCakeAdmin2026!')
-                }}
-                className="text-[11px] font-semibold text-[#8a5b51] hover:underline cursor-pointer"
-              >
-                Auto-fill
-              </button>
-            </div>
-            <div className="font-mono text-[11px] text-[#403835] space-y-1">
-              <div>Email: <span className="font-semibold text-[#251e1c]">admin@speedcake.com</span></div>
-              <div>Password: <span className="font-semibold text-[#251e1c]">SpeedCakeAdmin2026!</span></div>
-            </div>
-          </div>
         </div>
 
         <p className="text-center text-xs text-[#756862] mt-8">
