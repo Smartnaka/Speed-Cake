@@ -63,14 +63,19 @@ export async function POST(req: Request) {
       req.headers.get('idempotency-key')?.trim() ||
       (typeof rawBody?.idempotency_key === 'string' ? rawBody.idempotency_key.trim() : null)
 
+    if (!idempotencyKey || idempotencyKey.length > 128) {
+      return NextResponse.json({ error: 'A checkout idempotency key is required.' }, { status: 400 })
+    }
+
     // 3. Idempotency Check: check if order already exists for this idempotency key
     if (idempotencyKey) {
-      const { data: existingOrder } = await db
+      const { data: existingOrder, error: existingOrderError } = await db
         .from('orders')
         .select('id, order_number, total_kobo, status, payment_status, created_at')
         .eq('user_id', user.id)
         .eq('idempotency_key', idempotencyKey)
         .maybeSingle()
+      if (existingOrderError) throw existingOrderError
 
       if (existingOrder) {
         if (existingOrder.status === 'paid' || existingOrder.payment_status === 'success') {
@@ -79,15 +84,20 @@ export async function POST(req: Request) {
             already_paid: true,
           })
         }
+        return NextResponse.json(
+          { order_number: existingOrder.order_number, error: 'This checkout is already being processed. You can retry payment from your order.' },
+          { status: 409 }
+        )
       }
     }
 
     // 4. Load user profile for default information
-    const { data: profile } = await db
+    const { data: profile, error: profileError } = await db
       .from('profiles')
       .select('full_name, phone')
       .eq('id', user.id)
       .maybeSingle()
+    if (profileError) throw profileError
 
     // 5. Authoritative price recalculation from database catalog
     const ids = [...new Set(input.items.map(i => i.productId))]
@@ -231,24 +241,10 @@ export async function POST(req: Request) {
     const customerPhone = input.phone.trim() || profile?.phone || ''
     const country = input.country?.trim() || 'Nigeria'
 
-    // 7. Check if existing pending order can be reused for idempotency
-    let order: any = null
-    if (idempotencyKey) {
-      const { data: existingPendingOrder } = await db
-        .from('orders')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('idempotency_key', idempotencyKey)
-        .eq('status', 'pending_payment')
-        .maybeSingle()
-
-      if (existingPendingOrder) {
-        order = existingPendingOrder
-      }
-    }
-
-    // 8. Create new order if not reusing an existing pending order
-    if (!order) {
+    // The database function atomically creates the order, items, and history. Do
+    // not fall back to independent inserts: a partial order cannot be paid safely.
+    let order: any
+    {
       const rpcRes = await db.rpc('create_speedcake_order', {
         buyer_id: user.id,
         customer_name: customerName,
@@ -269,63 +265,14 @@ export async function POST(req: Request) {
         first_name: firstName,
         last_name: lastName,
         country: country,
+        checkout_idempotency_key: idempotencyKey,
       })
 
       if (rpcRes.error) {
-        // Fallback: direct insert using service role if database RPC is an older version
-        const { data: newOrder, error: insertErr } = await db
-          .from('orders')
-          .insert({
-            user_id: user.id,
-            idempotency_key: idempotencyKey,
-            customer_name: customerName,
-            customer_email: customerEmail,
-            customer_phone: customerPhone,
-            delivery_address: deliveryAddress,
-            city: input.city.trim(),
-            state: input.state.trim(),
-            landmark: input.landmark?.trim() || '',
-            delivery_instructions: input.instructions?.trim() || '',
-            delivery_zone_id: null,
-            delivery_date: deliveryDate,
-            delivery_window: deliveryWindow,
-            delivery_charge_kobo: deliveryCharge,
-            subtotal_kobo: subtotal,
-            total_kobo: total,
-            fulfillment_type: input.fulfillment_type,
-            first_name: firstName,
-            last_name: lastName,
-            country: country,
-          })
-          .select()
-          .single()
-
-        if (insertErr) throw insertErr
-        order = newOrder
-
-        for (const snap of snapshots) {
-          await db.from('order_items').insert({
-            order_id: order.id,
-            product_id: snap.product_id,
-            product_snapshot: snap.product_snapshot,
-            variant_snapshot: snap.variant_snapshot,
-            customization: snap.customization,
-            quantity: snap.quantity,
-            line_total_kobo: snap.line_total_kobo,
-          })
-        }
-
-        await db.from('order_status_history').insert({
-          order_id: order.id,
-          status: 'pending_payment',
-          note: 'Order placed',
-        })
-      } else {
-        order = rpcRes.data
-        if (idempotencyKey && order?.id) {
-          await db.from('orders').update({ idempotency_key: idempotencyKey }).eq('id', order.id)
-        }
+        console.error('Atomic order creation failed:', { code: rpcRes.error.code })
+        return NextResponse.json({ error: 'Unable to create your order safely. Please try again.' }, { status: 503 })
       }
+      order = rpcRes.data
     }
 
     // 9. Initialize Paystack payment cleanly
@@ -341,6 +288,19 @@ export async function POST(req: Request) {
     }
 
     const reference = `SC-${order.order_number}-${crypto.randomUUID()}`
+    const { data: attempt, error: attemptError } = await db.rpc('create_speedcake_payment_attempt', {
+      target_order: order.id,
+      expected_user: user.id,
+      payment_reference: reference,
+    })
+    if (attemptError) {
+      console.error('Payment attempt creation failed:', { order: order.order_number, code: attemptError.code })
+      return NextResponse.json({ error: 'Unable to create a safe payment attempt. Please try again.' }, { status: 503 })
+    }
+    const failAttempt = async () => {
+      const { error } = await db.rpc('fail_speedcake_payment_attempt', { payment_id: attempt.id })
+      if (error) throw error
+    }
     let paystackResponse: Response
     try {
       paystackResponse = await fetch('https://api.paystack.co/transaction/initialize', {
@@ -364,6 +324,10 @@ export async function POST(req: Request) {
       })
     } catch (netErr) {
       console.error('Paystack network error:', netErr)
+      try { await failAttempt() } catch (error) {
+        console.error('Payment attempt failure recording failed', { reference, error })
+        return NextResponse.json({ error: 'Payment initialization state is unavailable. Please contact support.' }, { status: 503 })
+      }
       return NextResponse.json(
         {
           order_number: order.order_number,
@@ -376,28 +340,16 @@ export async function POST(req: Request) {
     const body = await paystackResponse.json().catch(() => null)
     if (!paystackResponse.ok || !body?.status || !body?.data?.authorization_url) {
       console.error('Paystack initialization error:', body)
+      try { await failAttempt() } catch (error) {
+        console.error('Payment attempt failure recording failed', { reference, error })
+        return NextResponse.json({ error: 'Payment initialization state is unavailable. Please contact support.' }, { status: 503 })
+      }
       return NextResponse.json(
         {
           order_number: order.order_number,
           error: 'Payment initialization failed. Please try again.',
         },
         { status: 502 }
-      )
-    }
-
-    const { error: paymentError } = await db.from('payments').insert({
-      order_id: order.id,
-      reference,
-      amount_kobo: total,
-      currency: 'NGN',
-      status: 'pending',
-    })
-
-    if (paymentError) {
-      console.error('Payment record insert error:', paymentError)
-      return NextResponse.json(
-        { error: 'Unable to record payment session. Please try again.' },
-        { status: 500 }
       )
     }
 
