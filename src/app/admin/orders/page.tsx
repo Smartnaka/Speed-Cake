@@ -299,8 +299,8 @@ export default function AdminOrdersPage() {
                               <span>{order.delivery_date}</span>
                             </div>
                             <div className="text-xs text-[#867872] mt-0.5">{order.delivery_window || 'Standard window'}</div>
-                            <div className="text-xs text-[#867872] truncate max-w-[160px] mt-0.5" title={order.delivery_address}>
-                              {order.city ? `${order.city}, ${order.state}` : order.delivery_address}
+                            <div className="text-xs text-[#867872] truncate max-w-[160px] mt-0.5" title={order.delivery_address ?? undefined}>
+                              {order.city ? `${order.city}, ${order.state}` : order.delivery_address || 'Address unavailable'}
                             </div>
                           </>
                         ) : (
