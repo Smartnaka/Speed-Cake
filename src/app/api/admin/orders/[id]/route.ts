@@ -16,8 +16,9 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
     return NextResponse.json({ ok: true, order })
   } catch (err) {
+    console.error('Admin order detail failed', err)
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Failed to fetch order details' },
+      { error: 'Failed to fetch order details.' },
       { status: 500 }
     )
   }
