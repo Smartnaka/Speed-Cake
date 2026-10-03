@@ -322,10 +322,11 @@ export async function POST(req: Request) {
           },
         }),
       })
-    } catch (netErr) {
-      console.error('Paystack network error:', netErr)
-      try { await failAttempt() } catch (error) {
-        console.error('Payment attempt failure recording failed', { reference, error })
+    } catch {
+      // Do not log the gateway error object: it may contain request/response details.
+      console.error('Paystack initialization network failure')
+      try { await failAttempt() } catch {
+        console.error('Payment attempt failure recording failed', { reference })
         return NextResponse.json({ error: 'Payment initialization state is unavailable. Please contact support.' }, { status: 503 })
       }
       return NextResponse.json(
@@ -339,9 +340,9 @@ export async function POST(req: Request) {
 
     const body = await paystackResponse.json().catch(() => null)
     if (!paystackResponse.ok || !body?.status || !body?.data?.authorization_url) {
-      console.error('Paystack initialization error:', body)
-      try { await failAttempt() } catch (error) {
-        console.error('Payment attempt failure recording failed', { reference, error })
+      console.error('Paystack initialization rejected', { status: paystackResponse.status, reference })
+      try { await failAttempt() } catch {
+        console.error('Payment attempt failure recording failed', { reference })
         return NextResponse.json({ error: 'Payment initialization state is unavailable. Please contact support.' }, { status: 503 })
       }
       return NextResponse.json(
@@ -357,8 +358,8 @@ export async function POST(req: Request) {
       authorization_url: body.data.authorization_url,
       order_number: order.order_number,
     })
-  } catch (e) {
-    console.error('checkout error', e)
+  } catch {
+    console.error('Checkout processing failed')
     return NextResponse.json(
       { error: 'Unable to start checkout. Please try again.' },
       { status: 500 }

@@ -36,8 +36,8 @@ export async function POST(req: Request) {
     if (!secret) return NextResponse.json({ error: 'Payment service unavailable.' }, { status: 503 })
 
     let result
-    try { result = await verifyPaystackTransaction(reference, secret) } catch (error) {
-      console.error('Paystack verification network failure', { reference, error })
+    try { result = await verifyPaystackTransaction(reference, secret) } catch {
+      console.error('Paystack verification network failure', { reference })
       return NextResponse.json({ error: 'Unable to contact the payment provider. Please try again.' }, { status: 502 })
     }
     if (!result.response.ok || !result.body?.status || !paymentMatchesLocalRecord(result.transaction, reference, payment.amount_kobo, order.total_kobo)) {
@@ -54,8 +54,8 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ order_number: order.order_number, status: 'success', already_processed: false })
-  } catch (error) {
-    console.error('Payment verification error', error)
+  } catch {
+    console.error('Payment verification processing failed')
     return NextResponse.json({ error: 'Unable to verify payment yet. Please try again.' }, { status: 500 })
   }
 }

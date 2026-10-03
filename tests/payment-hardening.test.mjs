@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import fs from 'node:fs/promises'
 import { isPaymentReference, paymentMatchesLocalRecord } from '../src/lib/paystack.ts'
 
 test('payment references have a strict server-side format', () => {
@@ -47,4 +48,17 @@ test('a retry atomically supersedes an abandoned pending attempt before creating
   assert.match(migration, /select \* into o from public\.orders where id = target_order for update/)
   assert.match(migration, /update public\.payments\s+set status = 'failed'\s+where order_id = o\.id and status = 'pending'/)
   assert.match(migration, /insert into public\.payments\(order_id, reference, amount_kobo, currency, status\)/)
+})
+
+test('payment endpoints never log Paystack response bodies or raw gateway errors', async () => {
+  const sources = await Promise.all([
+    fs.readFile(new URL('../src/app/api/checkout/route.ts', import.meta.url), 'utf8'),
+    fs.readFile(new URL('../src/app/api/orders/[number]/payment/route.ts', import.meta.url), 'utf8'),
+    fs.readFile(new URL('../src/app/api/payments/verify/route.ts', import.meta.url), 'utf8'),
+    fs.readFile(new URL('../src/app/api/payments/webhook/route.ts', import.meta.url), 'utf8'),
+  ])
+  for (const source of sources) {
+    assert.doesNotMatch(source, /console\.error\([^\n]*:\s*body/)
+    assert.doesNotMatch(source, /console\.error\([^\n]*,\s*(?:netErr|error|err)\)/)
+  }
 })
