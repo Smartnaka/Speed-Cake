@@ -45,6 +45,7 @@ export const checkoutBaseSchema = z.object({
   instructions: z.string().trim().max(500).optional().nullable(),
   delivery_date: z.string().trim().optional().nullable(),
   delivery_window: z.string().trim().optional().nullable(),
+  idempotency_key: z.string().trim().max(128).optional().nullable(),
   name: z.string().trim().optional(), // For backward compatibility
   items: z.array(checkoutItemSchema).min(1, 'Your order must contain at least one cake').max(30),
 })

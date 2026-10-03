@@ -42,8 +42,12 @@ export default function Checkout() {
   const [loading, setLoading] = useState(false)
   const [authReady, setAuthReady] = useState(false)
   const [windows, setWindows] = useState<string[]>(Array.from(DELIVERY_TIME_WINDOWS))
-  const [checkingWindows, setCheckingWindows] = useState(false)
-  const [deliveryFeeKobo, setDeliveryFeeKobo] = useState<number | null>(null)
+  const [idempotencyKey] = useState(() => {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID()
+    }
+    return `sc-checkout-${Date.now()}`
+  })
 
   const {
     register,
@@ -134,64 +138,9 @@ export default function Checkout() {
     }
   }, [router, setValue])
 
-  // 2. Dynamic delivery options & fee checking
-  useEffect(() => {
-    if (isPickup) {
-      setDeliveryFeeKobo(0)
-      return
-    }
-
-    if (!state || !city) {
-      setDeliveryFeeKobo(null)
-      return
-    }
-
-    let live = true
-    setCheckingWindows(true)
-
-    const query = new URLSearchParams({
-      state: state.trim(),
-      city: city.trim(),
-      ...(date ? { date: date.trim() } : {}),
-      products: [...new Set(items.map(i => i.productId))].join(','),
-    })
-
-    fetch(`/api/delivery-options?${query}`)
-      .then(r => r.json())
-      .then(d => {
-        if (!live) return
-        if (Array.isArray(d.windows) && d.windows.length > 0) {
-          setWindows(d.windows)
-          if (!d.windows.includes(watch('delivery_window') || '')) {
-            setValue('delivery_window', d.windows[0])
-          }
-        } else {
-          setWindows(Array.from(DELIVERY_TIME_WINDOWS))
-        }
-        if (typeof d.charge_kobo === 'number') {
-          setDeliveryFeeKobo(d.charge_kobo)
-        } else {
-          setDeliveryFeeKobo(DEFAULT_DELIVERY_CHARGE_KOBO)
-        }
-      })
-      .catch(() => {
-        if (live) {
-          setWindows(Array.from(DELIVERY_TIME_WINDOWS))
-          setDeliveryFeeKobo(DEFAULT_DELIVERY_CHARGE_KOBO)
-        }
-      })
-      .finally(() => {
-        if (live) setCheckingWindows(false)
-      })
-
-    return () => {
-      live = false
-    }
-  }, [isPickup, state, city, date, items, setValue, watch])
-
-  // 3. Computed pricing
+  // 2. Computed pricing (zero delivery-zone dependencies)
   const subtotal = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
-  const currentFeeKobo = isPickup ? 0 : deliveryFeeKobo ?? DEFAULT_DELIVERY_CHARGE_KOBO
+  const currentFeeKobo = isPickup ? 0 : DEFAULT_DELIVERY_CHARGE_KOBO
   const totalAmountKobo = subtotal + currentFeeKobo
 
   // 4. Form submission
@@ -244,6 +193,7 @@ export default function Checkout() {
         instructions: isPickup ? null : values.instructions || null,
         delivery_date: isPickup ? null : values.delivery_date,
         delivery_window: isPickup ? 'Store Pickup' : values.delivery_window,
+        idempotency_key: idempotencyKey,
         items: orderItems,
       }
 
@@ -251,6 +201,7 @@ export default function Checkout() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Idempotency-Key': idempotencyKey,
           Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify(payload),
@@ -262,6 +213,11 @@ export default function Checkout() {
       }
 
       const data = await response.json()
+
+      if (data.already_paid && data.order_number) {
+        router.push(`/account/orders/${data.order_number}`)
+        return
+      }
 
       if (data.authorization_url) {
         localStorage.setItem(
@@ -569,17 +525,12 @@ export default function Checkout() {
                   <select
                     className={inputClass}
                     {...register('delivery_window')}
-                    disabled={checkingWindows}
                   >
-                    {checkingWindows ? (
-                      <option value="">Checking available windows…</option>
-                    ) : (
-                      windows.map(w => (
-                        <option key={w} value={w}>
-                          {w}
-                        </option>
-                      ))
-                    )}
+                    {windows.map(w => (
+                      <option key={w} value={w}>
+                        {w}
+                      </option>
+                    ))}
                   </select>
                   {errors.delivery_window && (
                     <p className="text-xs text-red-700 mt-1">{errors.delivery_window.message}</p>

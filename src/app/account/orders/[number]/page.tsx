@@ -23,6 +23,43 @@ export default function OrderDetails() {
   const router = useRouter()
   const [order, setOrder] = useState<any>()
   const [error, setError] = useState('')
+  const [retrying, setRetrying] = useState(false)
+  const [retryError, setRetryError] = useState('')
+
+  async function handleRetryPayment() {
+    if (!order) return
+    setRetrying(true)
+    setRetryError('')
+    try {
+      const {
+        data: { session },
+      } = await supabaseBrowser().auth.getSession()
+
+      if (!session) {
+        router.replace(`/account?next=${encodeURIComponent(`/account/orders/${number}`)}`)
+        return
+      }
+
+      const res = await fetch(`/api/orders/${encodeURIComponent(order.order_number)}/payment`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      })
+
+      const data = await res.json()
+      if (data.authorization_url) {
+        window.location.href = data.authorization_url
+        return
+      }
+
+      setRetryError(data.error || 'Failed to start payment session.')
+    } catch {
+      setRetryError('Unable to connect to payment gateway. Please try again.')
+    } finally {
+      setRetrying(false)
+    }
+  }
 
   useEffect(() => {
     let live = true
@@ -251,6 +288,22 @@ export default function OrderDetails() {
             <span className="text-[#867872] block">Payment Status:</span>
             <b className="capitalize text-sm text-[#6f3d36] mt-0.5 block">{order.payment_status}</b>
           </div>
+
+          {order.status === 'pending_payment' && order.payment_status !== 'success' && (
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={handleRetryPayment}
+                disabled={retrying}
+                className="w-full bg-[#6f3d36] text-white py-3 px-4 text-xs font-semibold uppercase tracking-wider hover:bg-[#592f29] transition disabled:opacity-50"
+              >
+                {retrying ? 'Connecting to Paystack…' : 'Complete Payment / Pay Now'}
+              </button>
+              {retryError && (
+                <p className="text-[11px] text-[#8b342a] mt-1.5 leading-snug">{retryError}</p>
+              )}
+            </div>
+          )}
         </aside>
       </div>
     </main>

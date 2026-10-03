@@ -38,7 +38,11 @@ export async function POST(req: Request) {
     }
 
     // 2. Validate input schema
-    const rawBody = await req.json()
+    const rawBody = await req.json().catch(() => null)
+    if (!rawBody) {
+      return NextResponse.json({ error: 'Invalid request body.' }, { status: 400 })
+    }
+
     const parsed = checkoutSchema.safeParse(rawBody)
     if (!parsed.success) {
       const firstErrorMessage =
@@ -54,15 +58,38 @@ export async function POST(req: Request) {
 
     const input = parsed.data
     const isPickup = input.fulfillment_type === 'pickup'
+    const idempotencyKey =
+      input.idempotency_key?.trim() ||
+      req.headers.get('idempotency-key')?.trim() ||
+      (typeof rawBody?.idempotency_key === 'string' ? rawBody.idempotency_key.trim() : null)
 
-    // 3. Load user profile for default information
+    // 3. Idempotency Check: check if order already exists for this idempotency key
+    if (idempotencyKey) {
+      const { data: existingOrder } = await db
+        .from('orders')
+        .select('id, order_number, total_kobo, status, payment_status, created_at')
+        .eq('user_id', user.id)
+        .eq('idempotency_key', idempotencyKey)
+        .maybeSingle()
+
+      if (existingOrder) {
+        if (existingOrder.status === 'paid' || existingOrder.payment_status === 'success') {
+          return NextResponse.json({
+            order_number: existingOrder.order_number,
+            already_paid: true,
+          })
+        }
+      }
+    }
+
+    // 4. Load user profile for default information
     const { data: profile } = await db
       .from('profiles')
       .select('full_name, phone')
       .eq('id', user.id)
       .maybeSingle()
 
-    // 4. Validate products, variants, and customizations
+    // 5. Authoritative price recalculation from database catalog
     const ids = [...new Set(input.items.map(i => i.productId))]
     const { data: products, error: productError } = await db
       .from('products')
@@ -153,15 +180,14 @@ export async function POST(req: Request) {
       })
     }
 
-    // 5. Fulfillment calculations & validations
+    // 6. Fulfillment calculations & validations (zero delivery_zone dependencies)
     let deliveryCharge = 0
-    let zoneId: string | null = null
     let deliveryDate: string | null = null
-    let deliveryWindow: string = isPickup ? 'Store Pickup' : ''
+    let deliveryWindow: string = 'Store Pickup'
     let deliveryAddress: string | null = null
 
     if (!isPickup) {
-      // Delivery mode
+      // Home Delivery mode: lead-time and window validation
       const now = lagosNow()
       const today = `${now.year}-${now.month}-${now.day}`
       const orderDate = new Date(`${input.delivery_date}T00:00:00`)
@@ -189,33 +215,13 @@ export async function POST(req: Request) {
         )
       }
 
-      // Check delivery zone
-      const { data: zone } = await db
-        .from('delivery_zones')
-        .select('id,charge_kobo')
-        .eq('state', input.state.trim())
-        .eq('city', input.city.trim())
-        .eq('active', true)
-        .maybeSingle()
-
-      if (!zone) {
-        return NextResponse.json(
-          {
-            error:
-              'We do not deliver to that area yet. Please select an available delivery area or choose Store Pickup.',
-          },
-          { status: 400 }
-        )
-      }
-
-      zoneId = zone.id
-      deliveryCharge = Number(zone.charge_kobo)
+      deliveryCharge = DEFAULT_DELIVERY_CHARGE_KOBO
       deliveryDate = input.delivery_date || null
       deliveryWindow = input.delivery_window
       deliveryAddress = input.address || null
     }
 
-    // Total calculation (server-authoritative)
+    // Authoritative total calculation
     const total = subtotal + deliveryCharge
 
     const firstName = input.first_name.trim()
@@ -225,118 +231,158 @@ export async function POST(req: Request) {
     const customerPhone = input.phone.trim() || profile?.phone || ''
     const country = input.country?.trim() || 'Nigeria'
 
-    // 6. Create order (Attempt RPC first, with robust fallback)
-    let order: any
-    const rpcRes = await db.rpc('create_speedcake_order', {
-      buyer_id: user.id,
-      customer_name: customerName,
-      email: customerEmail,
-      phone: customerPhone,
-      address: deliveryAddress || '',
-      city: input.city.trim(),
-      state: input.state.trim(),
-      landmark: input.landmark?.trim() || '',
-      instructions: input.instructions?.trim() || '',
-      delivery_date: deliveryDate,
-      delivery_window: deliveryWindow,
-      zone_id: zoneId,
-      delivery_charge_kobo: deliveryCharge,
-      total_kobo: total,
-      items: snapshots,
-      fulfillment_type: input.fulfillment_type,
-      first_name: firstName,
-      last_name: lastName,
-      country: country,
-    })
-
-    if (rpcRes.error) {
-      // Fallback: direct insert using service role if database RPC is an older version
-      const { data: newOrder, error: insertErr } = await db
+    // 7. Check if existing pending order can be reused for idempotency
+    let order: any = null
+    if (idempotencyKey) {
+      const { data: existingPendingOrder } = await db
         .from('orders')
-        .insert({
-          user_id: user.id,
-          customer_name: customerName,
-          customer_email: customerEmail,
-          customer_phone: customerPhone,
-          delivery_address: deliveryAddress,
-          city: input.city.trim(),
-          state: input.state.trim(),
-          landmark: input.landmark?.trim() || '',
-          delivery_instructions: input.instructions?.trim() || '',
-          delivery_zone_id: zoneId,
-          delivery_date: deliveryDate,
-          delivery_window: deliveryWindow,
-          delivery_charge_kobo: deliveryCharge,
-          subtotal_kobo: subtotal,
-          total_kobo: total,
-          fulfillment_type: input.fulfillment_type,
-          first_name: firstName,
-          last_name: lastName,
-          country: country,
-        })
-        .select()
-        .single()
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('idempotency_key', idempotencyKey)
+        .eq('status', 'pending_payment')
+        .maybeSingle()
 
-      if (insertErr) throw insertErr
-      order = newOrder
-
-      for (const snap of snapshots) {
-        await db.from('order_items').insert({
-          order_id: order.id,
-          product_id: snap.product_id,
-          product_snapshot: snap.product_snapshot,
-          variant_snapshot: snap.variant_snapshot,
-          customization: snap.customization,
-          quantity: snap.quantity,
-          line_total_kobo: snap.line_total_kobo,
-        })
+      if (existingPendingOrder) {
+        order = existingPendingOrder
       }
-
-      await db.from('order_status_history').insert({
-        order_id: order.id,
-        status: 'pending_payment',
-        note: 'Order placed',
-      })
-    } else {
-      order = rpcRes.data
     }
 
-    // 7. Initialize Paystack payment
+    // 8. Create new order if not reusing an existing pending order
+    if (!order) {
+      const rpcRes = await db.rpc('create_speedcake_order', {
+        buyer_id: user.id,
+        customer_name: customerName,
+        email: customerEmail,
+        phone: customerPhone,
+        address: deliveryAddress || '',
+        city: input.city.trim(),
+        state: input.state.trim(),
+        landmark: input.landmark?.trim() || '',
+        instructions: input.instructions?.trim() || '',
+        delivery_date: deliveryDate,
+        delivery_window: deliveryWindow,
+        zone_id: null,
+        delivery_charge_kobo: deliveryCharge,
+        total_kobo: total,
+        items: snapshots,
+        fulfillment_type: input.fulfillment_type,
+        first_name: firstName,
+        last_name: lastName,
+        country: country,
+      })
+
+      if (rpcRes.error) {
+        // Fallback: direct insert using service role if database RPC is an older version
+        const { data: newOrder, error: insertErr } = await db
+          .from('orders')
+          .insert({
+            user_id: user.id,
+            idempotency_key: idempotencyKey,
+            customer_name: customerName,
+            customer_email: customerEmail,
+            customer_phone: customerPhone,
+            delivery_address: deliveryAddress,
+            city: input.city.trim(),
+            state: input.state.trim(),
+            landmark: input.landmark?.trim() || '',
+            delivery_instructions: input.instructions?.trim() || '',
+            delivery_zone_id: null,
+            delivery_date: deliveryDate,
+            delivery_window: deliveryWindow,
+            delivery_charge_kobo: deliveryCharge,
+            subtotal_kobo: subtotal,
+            total_kobo: total,
+            fulfillment_type: input.fulfillment_type,
+            first_name: firstName,
+            last_name: lastName,
+            country: country,
+          })
+          .select()
+          .single()
+
+        if (insertErr) throw insertErr
+        order = newOrder
+
+        for (const snap of snapshots) {
+          await db.from('order_items').insert({
+            order_id: order.id,
+            product_id: snap.product_id,
+            product_snapshot: snap.product_snapshot,
+            variant_snapshot: snap.variant_snapshot,
+            customization: snap.customization,
+            quantity: snap.quantity,
+            line_total_kobo: snap.line_total_kobo,
+          })
+        }
+
+        await db.from('order_status_history').insert({
+          order_id: order.id,
+          status: 'pending_payment',
+          note: 'Order placed',
+        })
+      } else {
+        order = rpcRes.data
+        if (idempotencyKey && order?.id) {
+          await db.from('orders').update({ idempotency_key: idempotencyKey }).eq('id', order.id)
+        }
+      }
+    }
+
+    // 9. Initialize Paystack payment cleanly
     const secret = process.env.PAYSTACK_SECRET_KEY
     if (!secret) {
       return NextResponse.json(
         {
           order_number: order.order_number,
-          error: 'Payment is not configured. Please try again later.',
+          error: 'Payment service is not configured. Please try again later.',
         },
         { status: 503 }
       )
     }
 
     const reference = `SC-${order.order_number}-${crypto.randomUUID()}`
-    const response = await fetch('https://api.paystack.co/transaction/initialize', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${secret}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: customerEmail,
-        amount: total,
-        currency: 'NGN',
-        reference,
-        callback_url: `${process.env.NEXT_PUBLIC_SITE_URL}/payment/return`,
-        metadata: {
-          order_id: order.id,
-          order_number: order.order_number,
-          fulfillment_type: input.fulfillment_type,
+    let paystackResponse: Response
+    try {
+      paystackResponse = await fetch('https://api.paystack.co/transaction/initialize', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${secret}`,
+          'Content-Type': 'application/json',
         },
-      }),
-    })
+        body: JSON.stringify({
+          email: customerEmail,
+          amount: total,
+          currency: 'NGN',
+          reference,
+          callback_url: `${process.env.NEXT_PUBLIC_SITE_URL || ''}/payment/return`,
+          metadata: {
+            order_id: order.id,
+            order_number: order.order_number,
+            fulfillment_type: input.fulfillment_type,
+          },
+        }),
+      })
+    } catch (netErr) {
+      console.error('Paystack network error:', netErr)
+      return NextResponse.json(
+        {
+          order_number: order.order_number,
+          error: 'Could not connect to payment gateway. Please try again.',
+        },
+        { status: 502 }
+      )
+    }
 
-    const body = await response.json()
-    if (!response.ok || !body.status) {
-      throw new Error('Paystack could not initialize payment')
+    const body = await paystackResponse.json().catch(() => null)
+    if (!paystackResponse.ok || !body?.status || !body?.data?.authorization_url) {
+      console.error('Paystack initialization error:', body)
+      return NextResponse.json(
+        {
+          order_number: order.order_number,
+          error: 'Payment initialization failed. Please try again.',
+        },
+        { status: 502 }
+      )
     }
 
     const { error: paymentError } = await db.from('payments').insert({
@@ -347,7 +393,13 @@ export async function POST(req: Request) {
       status: 'pending',
     })
 
-    if (paymentError) throw paymentError
+    if (paymentError) {
+      console.error('Payment record insert error:', paymentError)
+      return NextResponse.json(
+        { error: 'Unable to record payment session. Please try again.' },
+        { status: 500 }
+      )
+    }
 
     return NextResponse.json({
       authorization_url: body.data.authorization_url,
