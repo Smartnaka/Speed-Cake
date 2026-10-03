@@ -30,8 +30,9 @@ export async function GET(req: Request) {
     const result = await getAdminOrders(parsed.data)
     return NextResponse.json({ ok: true, ...result })
   } catch (err) {
+    console.error('Admin order list failed', err)
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Failed to retrieve orders' },
+      { error: 'Failed to retrieve orders.' },
       { status: 500 }
     )
   }

@@ -23,13 +23,17 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       params.id,
       parsed.data.status,
       parsed.data.note,
-      auth.user?.id || 'admin'
+      auth.user!.id,
+      parsed.data.expected_updated_at
     )
 
     return NextResponse.json({ ok: true, order: updatedOrder })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Failed to update order status'
-    const status = message.includes('Invalid order status transition') ? 400 : message === 'Order not found' ? 404 : 500
-    return NextResponse.json({ error: message }, { status })
+    if (message === 'Order not found') return NextResponse.json({ error: message }, { status: 404 })
+    if (message.includes('Invalid order status transition')) return NextResponse.json({ error: 'Invalid order status transition.' }, { status: 422 })
+    if (message.includes('updated by another administrator')) return NextResponse.json({ error: 'This order changed since it was loaded. Refresh and try again.' }, { status: 409 })
+    console.error('Admin order status update failed', err)
+    return NextResponse.json({ error: 'Unable to update the order status.' }, { status: 500 })
   }
 }

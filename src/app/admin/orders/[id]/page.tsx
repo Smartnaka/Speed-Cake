@@ -84,6 +84,12 @@ export default function AdminOrderDetailPage({ params }: { params: { id: string 
   async function handleStatusTransition(e: React.FormEvent) {
     e.preventDefault()
     if (!order || !selectedNextStatus) return
+    if (
+      selectedNextStatus === 'cancelled' &&
+      !window.confirm('Cancel this order? This fulfillment status cannot be restored from the admin workflow.')
+    ) {
+      return
+    }
 
     setUpdatingStatus(true)
     setStatusSuccessMessage(null)
@@ -99,6 +105,7 @@ export default function AdminOrderDetailPage({ params }: { params: { id: string 
         body: JSON.stringify({
           status: selectedNextStatus,
           note: statusNote.trim() || undefined,
+          expected_updated_at: order.updated_at,
         }),
       })
 
