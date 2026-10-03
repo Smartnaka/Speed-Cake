@@ -109,9 +109,9 @@ export default function AdminDashboardPage() {
     },
     {
       stage: 'Stage 4',
-      title: 'Delivery & Settings',
+      title: 'Store Settings',
       status: 'Upcoming',
-      description: 'Lagos zones, slot cutoff rules, charges, and payment verification auditing.',
+      description: 'Store information and customer support contact details.',
       isCurrent: false,
     },
   ]
