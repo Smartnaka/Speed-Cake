@@ -49,18 +49,18 @@ export default function CakesContent() {
   )
 
   return (
-    <main className="container py-12 md:py-16 space-y-10">
+    <main className="container py-10 md:py-14 space-y-8">
       {/* Header Banner */}
-      <div className="max-w-2xl space-y-3">
+      <div className="max-w-2xl space-y-2">
         <div className="eyebrow flex items-center gap-1.5">
-          <Sparkles size={13} />
-          <span>Handcrafted In Lagos</span>
+          <Sparkles size={14} />
+          <span>Small-Batch Confectionery</span>
         </div>
-        <h1 className="serif text-4xl md:text-5xl lg:text-6xl text-[#1E1917] font-normal tracking-tight">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl text-[#2A1E24] font-extrabold tracking-tight">
           The Cake Collection
         </h1>
-        <p className="text-base text-[#7A726D] leading-relaxed">
-          Explore our seasonal menu of celebration cakes. Every cake is baked fresh to order and customizable with your choice of size, fillings, and bespoke inscriptions.
+        <p className="text-base text-[#55424D] leading-relaxed">
+          Explore our seasonal menu of celebration cakes. Every cake is baked fresh to order and customizable with your choice of size, fillings, and hand-piped messages.
         </p>
       </div>
 
@@ -74,10 +74,10 @@ export default function CakesContent() {
               <button
                 key={c}
                 onClick={() => setCategory(c)}
-                className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
+                className={`px-5 py-2.5 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 ${
                   isActive
-                    ? 'bg-[#1E1917] text-white shadow-sm'
-                    : 'bg-white border border-[#EAE3DC] text-[#4A4340] hover:border-[#1E1917] hover:text-[#1E1917]'
+                    ? 'bg-[#E60067] text-white shadow-pink-glow scale-105'
+                    : 'bg-white border border-[#FAD1E0] text-[#55424D] hover:border-[#E60067] hover:text-[#E60067]'
                 }`}
               >
                 {c}
@@ -90,19 +90,19 @@ export default function CakesContent() {
         <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
           {/* Search bar */}
           <div className="relative flex-1 max-w-sm">
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#7A726D]" />
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8A7380]" />
             <input
               aria-label="Search cakes"
               placeholder="Search by cake name or flavour..."
               value={query}
               onChange={e => setQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-full border border-[#EAE3DC] bg-white text-xs text-[#1E1917] placeholder:text-[#9C938E] outline-none focus:border-[#1E1917] focus:ring-1 focus:ring-[#1E1917] transition shadow-subtle"
+              className="w-full pl-11 pr-4 py-2.5 rounded-full border border-[#FAD1E0] bg-white text-xs text-[#2A1E24] placeholder:text-[#8A7380] outline-none focus:border-[#E60067] focus:ring-2 focus:ring-[#FFE4EE] transition shadow-subtle"
             />
           </div>
 
           {/* Sort dropdown */}
           <div className="flex items-center gap-2 self-end sm:self-auto">
-            <span className="text-xs text-[#7A726D] flex items-center gap-1">
+            <span className="text-xs text-[#8A7380] font-bold flex items-center gap-1">
               <SlidersHorizontal size={13} />
               <span>Sort:</span>
             </span>
@@ -110,7 +110,7 @@ export default function CakesContent() {
               aria-label="Sort cakes"
               value={sort}
               onChange={e => setSort(e.target.value)}
-              className="px-4 py-2 rounded-full border border-[#EAE3DC] bg-white text-xs font-medium text-[#1E1917] outline-none focus:border-[#1E1917] shadow-subtle cursor-pointer"
+              className="px-4 py-2 rounded-full border border-[#FAD1E0] bg-white text-xs font-bold text-[#2A1E24] outline-none focus:border-[#E60067] shadow-subtle cursor-pointer"
             >
               <option value="featured">Featured First</option>
               <option value="low">Price: Low to High</option>
@@ -122,9 +122,9 @@ export default function CakesContent() {
 
       {/* Product Grid Area */}
       {!loaded ? (
-        <div className="py-28 text-center space-y-3">
-          <div className="w-8 h-8 rounded-full border-2 border-[#1E1917] border-t-transparent animate-spin mx-auto" />
-          <p className="text-sm text-[#7A726D]">Loading our fresh celebration menu...</p>
+        <div className="py-24 text-center space-y-3">
+          <div className="w-10 h-10 rounded-full border-3 border-[#FAD1E0] border-t-[#E60067] animate-spin mx-auto" />
+          <p className="text-sm font-semibold text-[#8A7380]">Loading our fresh celebration cakes...</p>
         </div>
       ) : (
         <>
@@ -135,9 +135,9 @@ export default function CakesContent() {
           </div>
 
           {list.length === 0 && (
-            <div className="py-24 text-center bg-white rounded-2xl border border-[#EAE3DC] p-8 max-w-lg mx-auto space-y-4 shadow-subtle">
-              <div className="serif text-2xl text-[#1E1917]">No cakes found</div>
-              <p className="text-sm text-[#7A726D]">
+            <div className="py-20 text-center bg-white rounded-3xl border border-[#FAD1E0] p-8 max-w-lg mx-auto space-y-4 shadow-card">
+              <div className="text-2xl text-[#2A1E24] font-extrabold">No cakes found</div>
+              <p className="text-sm text-[#8A7380]">
                 {products.length
                   ? 'We couldn’t find any recipes matching your search. Try resetting your filters.'
                   : 'Our cake catalogue is currently being prepared. Please check back shortly.'}
@@ -148,7 +148,7 @@ export default function CakesContent() {
                     setQuery('')
                     setCategory('All')
                   }}
-                  className="px-5 py-2.5 rounded-full bg-[#1E1917] text-white text-xs font-semibold shadow-sm hover:bg-[#332C29] transition"
+                  className="px-6 py-3 rounded-full bg-[#E60067] text-white text-xs font-black uppercase tracking-wider shadow-pink-glow hover:bg-[#C70055] transition"
                 >
                   Clear Filters
                 </button>

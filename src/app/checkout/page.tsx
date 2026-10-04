@@ -33,7 +33,7 @@ type CheckoutFormData = {
 }
 
 const inputClass =
-  'w-full border border-[#EAE3DC] bg-[#FAF8F5] px-4 py-3 rounded-xl text-sm text-[#1E1917] outline-none focus:border-[#1E1917] focus:bg-white focus:ring-1 focus:ring-[#1E1917] transition shadow-subtle placeholder:text-[#9C938E]'
+  'w-full border border-[#FAD1E0] bg-[#FFF5F8] px-4 py-3 rounded-2xl text-sm text-[#2A1E24] outline-none focus:border-[#E60067] focus:bg-white focus:ring-2 focus:ring-[#FFE4EE] transition shadow-subtle placeholder:text-[#8A7380]'
 
 export default function Checkout() {
   const router = useRouter()
@@ -252,19 +252,19 @@ export default function Checkout() {
     return (
       <main className="container py-20 min-h-[50vh] text-center">
         <div className="eyebrow">Your order</div>
-        <h1 className="serif text-4xl mt-3">
+        <h1 className="text-3xl md:text-4xl text-[#2A1E24] font-extrabold mt-3">
           {hasInvalidItems ? 'Invalid order configuration' : 'Your bag is empty'}
         </h1>
-        <p className="text-sm text-[#756862] mt-4 max-w-md mx-auto">
+        <p className="text-sm text-[#8A7380] mt-4 max-w-md mx-auto">
           {hasInvalidItems
             ? 'One or more items in your cart has an incomplete configuration. Please re-select your cake to continue.'
             : 'You don’t have any cakes in your order bag right now. Please explore our cake collection to start an order.'}
         </p>
         <div className="mt-8 flex justify-center gap-4">
-          <Link className="inline-block bg-[#6f3d36] text-white px-6 py-4 text-sm" href="/cakes">
+          <Link className="inline-block bg-[#E60067] hover:bg-[#C70055] text-white px-7 py-3.5 text-xs font-black uppercase tracking-wider rounded-full shadow-pink-glow transition" href="/cakes">
             Explore the cakes
           </Link>
-          <Link className="inline-block border border-[#6f3d36] px-6 py-4 text-sm" href="/cart">
+          <Link className="inline-block border-2 border-[#E60067] text-[#E60067] hover:bg-[#FFEBF2] px-7 py-3.5 text-xs font-black uppercase tracking-wider rounded-full transition" href="/cart">
             View bag
           </Link>
         </div>
@@ -280,24 +280,24 @@ export default function Checkout() {
   }).format(new Date())
 
   return (
-    <main className="container py-12 md:py-16">
-      <div className="space-y-2 mb-8">
+    <main className="container py-10 md:py-14">
+      <div className="space-y-1 mb-8">
         <div className="eyebrow flex items-center gap-1.5">
           <span>Final Step</span>
           <span>&middot;</span>
           <span>Secure Checkout</span>
         </div>
-        <h1 className="serif text-4xl md:text-5xl text-[#1E1917] font-normal tracking-tight">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl text-[#2A1E24] font-extrabold tracking-tight">
           Complete Your Order
         </h1>
       </div>
 
-      <div className="grid lg:grid-cols-[1fr_390px] gap-8 lg:gap-12 mt-6 items-start">
+      <div className="grid lg:grid-cols-[1fr_390px] gap-8 lg:gap-10 mt-6 items-start">
         <form onSubmit={handleSubmit(submit)} className="space-y-8" noValidate>
           {/* Section 1: Fulfillment Selection */}
-          <div className="bg-white rounded-3xl border border-[#EAE3DC] p-6 md:p-8 shadow-card">
-            <h2 className="serif text-2xl text-[#1E1917] font-normal mb-1">1. Delivery or Pickup</h2>
-            <p className="text-xs text-[#7A726D] mb-6">
+          <div className="bg-white rounded-3xl border border-[#FAD1E0] p-6 md:p-8 shadow-card">
+            <h2 className="text-2xl text-[#2A1E24] font-extrabold mb-1">1. Delivery or Pickup</h2>
+            <p className="text-xs text-[#8A7380] mb-6">
               Select how you would like to receive your freshly baked celebration cake.
             </p>
 
@@ -307,20 +307,20 @@ export default function Checkout() {
                 onClick={() => setValue('fulfillment_type', 'delivery')}
                 className={`p-5 rounded-2xl border text-left flex items-start gap-4 transition cursor-pointer ${
                   !isPickup
-                    ? 'border-[#1E1917] bg-[#FAF8F5] ring-1 ring-[#1E1917] shadow-sm'
-                    : 'border-[#EAE3DC] bg-white hover:border-[#DFD7CF]'
+                    ? 'border-[#E60067] bg-[#FFEBF2] ring-2 ring-[#E60067]/30 shadow-subtle'
+                    : 'border-[#FAD1E0] bg-white hover:border-[#E60067]'
                 }`}
               >
                 <div
                   className={`p-2.5 rounded-xl mt-0.5 ${
-                    !isPickup ? 'bg-[#1E1917] text-white' : 'bg-[#FAF8F5] text-[#1E1917] border border-[#EAE3DC]'
+                    !isPickup ? 'bg-[#E60067] text-white' : 'bg-[#FFF5F8] text-[#2A1E24] border border-[#FAD1E0]'
                   }`}
                 >
                   <Truck size={18} />
                 </div>
                 <div>
-                  <div className="font-semibold text-sm text-[#1E1917]">Doorstep Delivery</div>
-                  <div className="text-xs text-[#7A726D] mt-1 leading-relaxed">
+                  <div className="font-extrabold text-sm text-[#2A1E24]">Doorstep Delivery</div>
+                  <div className="text-xs text-[#8A7380] mt-1 leading-relaxed">
                     Carefully transported in cold courier transit to your home, office, or venue.
                   </div>
                 </div>
@@ -331,34 +331,34 @@ export default function Checkout() {
                 onClick={() => setValue('fulfillment_type', 'pickup')}
                 className={`p-5 rounded-2xl border text-left flex items-start gap-4 transition cursor-pointer ${
                   isPickup
-                    ? 'border-[#1E1917] bg-[#FAF8F5] ring-1 ring-[#1E1917] shadow-sm'
-                    : 'border-[#EAE3DC] bg-white hover:border-[#DFD7CF]'
+                    ? 'border-[#E60067] bg-[#FFEBF2] ring-2 ring-[#E60067]/30 shadow-subtle'
+                    : 'border-[#FAD1E0] bg-white hover:border-[#E60067]'
                 }`}
               >
                 <div
                   className={`p-2.5 rounded-xl mt-0.5 ${
-                    isPickup ? 'bg-[#1E1917] text-white' : 'bg-[#FAF8F5] text-[#1E1917] border border-[#EAE3DC]'
+                    isPickup ? 'bg-[#E60067] text-white' : 'bg-[#FFF5F8] text-[#2A1E24] border border-[#FAD1E0]'
                   }`}
                 >
                   <Store size={18} />
                 </div>
                 <div>
-                  <div className="font-semibold text-sm text-[#1E1917]">Bakery Pickup</div>
-                  <div className="text-xs text-[#7A726D] mt-1 leading-relaxed">
+                  <div className="font-extrabold text-sm text-[#2A1E24]">Bakery Pickup</div>
+                  <div className="text-xs text-[#8A7380] mt-1 leading-relaxed">
                     Collect directly from our Lekki Phase 1 bakery kitchen with zero delivery fee.
                   </div>
                 </div>
               </button>
             </div>
             {errors.fulfillment_type && (
-              <p className="text-xs text-[#933D32] mt-2 font-medium">{errors.fulfillment_type.message}</p>
+              <p className="text-xs text-[#E60067] mt-2 font-bold">{errors.fulfillment_type.message}</p>
             )}
           </div>
 
           {/* Section 2: Billing Details */}
-          <div className="bg-white rounded-3xl border border-[#EAE3DC] p-6 md:p-8 shadow-card">
-            <h2 className="serif text-2xl text-[#1E1917] font-normal mb-1">2. Billing Details</h2>
-            <p className="text-xs text-[#7A726D] mb-6">
+          <div className="bg-white rounded-3xl border border-[#FAD1E0] p-6 md:p-8 shadow-card">
+            <h2 className="text-2xl text-[#2A1E24] font-extrabold mb-1">2. Billing Details</h2>
+            <p className="text-xs text-[#8A7380] mb-6">
               Enter your contact details for order notifications and payment receipts.
             </p>
 
@@ -563,37 +563,37 @@ export default function Checkout() {
             </div>
           ) : (
             /* PICKUP DETAILS */
-            <div className="bg-white rounded-3xl border border-[#EAE3DC] p-6 md:p-8 space-y-4 shadow-card">
+            <div className="bg-white rounded-3xl border border-[#FAD1E0] p-6 md:p-8 space-y-4 shadow-card">
               <div>
-                <h2 className="serif text-2xl text-[#1E1917] font-normal mb-1 flex items-center gap-2">
-                  <Store size={22} className="text-[#933D32]" />
+                <h2 className="text-2xl text-[#2A1E24] font-extrabold mb-1 flex items-center gap-2">
+                  <Store size={22} className="text-[#E60067]" />
                   <span>3. Pickup Details</span>
                 </h2>
-                <p className="text-xs text-[#7A726D]">
+                <p className="text-xs text-[#8A7380]">
                   Collect your cake fresh from our central bakery kitchen.
                 </p>
               </div>
 
-              <div className="p-5 bg-[#FAF8F5] rounded-2xl border border-[#EAE3DC] space-y-2 text-xs text-[#5A524D]">
-                <div className="font-semibold text-sm text-[#1E1917] flex items-center gap-1.5">
-                  <MapPin size={16} className="text-[#933D32]" />
+              <div className="p-5 bg-[#FFF5F8] rounded-2xl border border-[#FAD1E0] space-y-2 text-xs text-[#55424D]">
+                <div className="font-extrabold text-sm text-[#2A1E24] flex items-center gap-1.5">
+                  <MapPin size={16} className="text-[#E60067]" />
                   <span>{SPEEDCAKE_PICKUP_LOCATION.name}</span>
                 </div>
-                <p className="pl-5 text-[#5A524D]">
+                <p className="pl-5 text-[#55424D]">
                   {SPEEDCAKE_PICKUP_LOCATION.address}, {SPEEDCAKE_PICKUP_LOCATION.city},{' '}
                   {SPEEDCAKE_PICKUP_LOCATION.state}, {SPEEDCAKE_PICKUP_LOCATION.country}
                 </p>
-                <div className="pl-5 text-[#7A726D] flex items-center gap-1.5 pt-1">
+                <div className="pl-5 text-[#8A7380] flex items-center gap-1.5 pt-1">
                   <Clock size={13} />
                   <span>Hours: {SPEEDCAKE_PICKUP_LOCATION.hours}</span>
                 </div>
-                <div className="pl-5 text-[#7A726D] pt-1">
+                <div className="pl-5 text-[#8A7380] pt-1">
                   Phone:{' '}
-                  <span className="font-medium text-[#1E1917]">
+                  <span className="font-bold text-[#2A1E24]">
                     {SPEEDCAKE_PICKUP_LOCATION.phone}
                   </span>
                 </div>
-                <div className="mt-3 pt-3 border-t border-[#EAE3DC] text-[#933D32] font-medium leading-relaxed">
+                <div className="mt-3 pt-3 border-t border-[#FAD1E0] text-[#E60067] font-semibold leading-relaxed">
                   Notice: {SPEEDCAKE_PICKUP_LOCATION.instructions}
                 </div>
               </div>
@@ -604,10 +604,10 @@ export default function Checkout() {
           {error && (
             <div
               role="alert"
-              className="p-4 rounded-xl bg-[#F8ECE9] border border-[#E8D4CF] text-[#933D32] text-xs flex gap-3 items-start"
+              className="p-4 rounded-2xl bg-[#FFE4EE] border border-[#FAD1E0] text-[#E60067] text-xs flex gap-3 items-start"
             >
               <AlertCircle size={16} className="shrink-0 mt-0.5" />
-              <div className="flex-1 leading-5 font-medium">{error}</div>
+              <div className="flex-1 leading-5 font-bold">{error}</div>
             </div>
           )}
 
@@ -616,7 +616,7 @@ export default function Checkout() {
             <button
               type="submit"
               disabled={loading || !items.length}
-              className="w-full bg-[#1E1917] hover:bg-[#332C29] text-white py-4 px-6 rounded-full text-sm font-semibold transition-all shadow-card hover:shadow-card-hover disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full bg-[#E60067] hover:bg-[#C70055] text-white py-4 px-6 rounded-full text-xs font-black uppercase tracking-wider transition-all shadow-pink-glow hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
             >
               {loading ? (
                 <>
@@ -627,7 +627,7 @@ export default function Checkout() {
                 <span>Pay {naira(totalAmountKobo)} with Paystack</span>
               )}
             </button>
-            <p className="text-center text-[11px] text-[#7A726D] mt-3">
+            <p className="text-center text-[11px] text-[#8A7380] mt-3 font-medium">
               Protected by 256-bit encryption &middot; Secure card &amp; bank transfer via Paystack
             </p>
           </div>
@@ -635,8 +635,8 @@ export default function Checkout() {
 
         {/* Order Summary Sidebar */}
         <aside className="space-y-6 lg:sticky lg:top-28">
-          <div className="bg-white rounded-3xl border border-[#EAE3DC] p-6 sm:p-7 shadow-card space-y-5">
-            <h2 className="serif text-2xl text-[#1E1917] font-normal pb-3 border-b border-[#F2ECE5]">
+          <div className="bg-white rounded-3xl border border-[#FAD1E0] p-6 sm:p-7 shadow-card space-y-5">
+            <h2 className="text-xl text-[#2A1E24] font-extrabold pb-3 border-b border-[#FAD1E0]/60">
               Order Summary
             </h2>
 
@@ -658,12 +658,12 @@ export default function Checkout() {
                         </small>
                       ))}
                     {i.message && (
-                      <small className="block text-xs italic text-[#933D32] mt-0.5">
+                      <small className="block text-xs italic text-[#E60067] mt-0.5">
                         &ldquo;{i.message}&rdquo;
                       </small>
                     )}
                   </div>
-                  <span className="font-semibold text-[#1E1917] shrink-0">
+                  <span className="font-extrabold text-[#2A1E24] shrink-0">
                     {naira(i.unitPrice * i.quantity)}
                   </span>
                 </div>
@@ -671,36 +671,36 @@ export default function Checkout() {
             </div>
 
             {/* Customer & Fulfillment Preview */}
-            <div className="pt-4 border-t border-[#F2ECE5] text-xs space-y-2 text-[#5A524D]">
+            <div className="pt-4 border-t border-[#FAD1E0]/60 text-xs space-y-2 text-[#55424D]">
               <div className="flex justify-between">
-                <span className="text-[#7A726D]">Customer:</span>
-                <span className="font-medium text-right text-[#1E1917]">
+                <span className="text-[#8A7380]">Customer:</span>
+                <span className="font-bold text-right text-[#2A1E24]">
                   {firstName || lastName ? `${firstName} ${lastName}`.trim() : '—'}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#7A726D]">Contact:</span>
-                <span className="font-medium text-right text-[#1E1917]">{phone || email || '—'}</span>
+                <span className="text-[#8A7380]">Contact:</span>
+                <span className="font-bold text-right text-[#2A1E24]">{phone || email || '—'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#7A726D]">Method:</span>
-                <span className="font-semibold text-[#933D32] uppercase tracking-wide">
+                <span className="text-[#8A7380]">Method:</span>
+                <span className="font-black text-[#E60067] uppercase tracking-wide">
                   {isPickup ? 'Store Pickup' : 'Home Delivery'}
                 </span>
               </div>
               {!isPickup ? (
                 <>
                   <div className="flex justify-between">
-                    <span className="text-[#7A726D]">Destination:</span>
-                    <span className="text-right text-[#1E1917] max-w-[190px] truncate">
+                    <span className="text-[#8A7380]">Destination:</span>
+                    <span className="text-right text-[#2A1E24] max-w-[190px] truncate font-medium">
                       {address ? `${address}, ` : ''}
                       {city ? `${city}, ` : ''}
                       {watch('state') || '—'}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#7A726D]">Schedule:</span>
-                    <span className="text-right text-[#1E1917]">
+                    <span className="text-[#8A7380]">Schedule:</span>
+                    <span className="text-right text-[#2A1E24] font-medium">
                       {date ? `${date}` : 'Select date'}
                       {deliveryWindow ? ` · ${deliveryWindow}` : ''}
                     </span>
@@ -708,8 +708,8 @@ export default function Checkout() {
                 </>
               ) : (
                 <div className="flex justify-between">
-                  <span className="text-[#7A726D]">Location:</span>
-                  <span className="text-right text-[#1E1917]">
+                  <span className="text-[#8A7380]">Location:</span>
+                  <span className="text-right text-[#2A1E24] font-medium">
                     {SPEEDCAKE_PICKUP_LOCATION.name}
                   </span>
                 </div>
@@ -717,18 +717,18 @@ export default function Checkout() {
             </div>
 
             {/* Financial Summary */}
-            <div className="pt-4 border-t border-[#F2ECE5] space-y-2.5 text-sm">
-              <div className="flex justify-between text-[#5A524D]">
+            <div className="pt-4 border-t border-[#FAD1E0]/60 space-y-2.5 text-sm">
+              <div className="flex justify-between text-[#55424D]">
                 <span>Items Subtotal</span>
-                <span>{naira(subtotal)}</span>
+                <span className="font-bold text-[#2A1E24]">{naira(subtotal)}</span>
               </div>
-              <div className="flex justify-between text-[#5A524D]">
+              <div className="flex justify-between text-[#55424D]">
                 <span>{isPickup ? 'Store Pickup' : 'Delivery Fee'}</span>
-                <span>{isPickup ? '₦0 (Free)' : naira(currentFeeKobo)}</span>
+                <span className="font-semibold">{isPickup ? '₦0 (Free)' : naira(currentFeeKobo)}</span>
               </div>
-              <div className="flex justify-between font-serif font-bold text-lg text-[#1E1917] pt-3 border-t border-[#F2ECE5]">
+              <div className="flex justify-between font-extrabold text-lg text-[#2A1E24] pt-3 border-t border-[#FAD1E0]/60">
                 <span>Total Due</span>
-                <span>{naira(totalAmountKobo)}</span>
+                <span className="text-xl text-[#E60067] font-black">{naira(totalAmountKobo)}</span>
               </div>
             </div>
           </div>

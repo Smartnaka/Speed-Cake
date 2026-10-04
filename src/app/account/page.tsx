@@ -97,19 +97,19 @@ function AccountContent(){
 
   if(session){
     if(safeNext!=='/account'){
-      return <main className="container py-24 min-h-[50vh] text-center"><p className="text-sm text-[#7A726D]">Redirecting to your order…</p></main>;
+      return <main className="container py-24 min-h-[50vh] text-center"><p className="text-sm text-[#8A7380] font-medium">Redirecting to your order…</p></main>;
     }
     return (
-      <main className="container py-12 md:py-16 min-h-[55vh] space-y-10">
-        <div className="bg-white rounded-3xl border border-[#EAE3DC] p-6 sm:p-10 shadow-card flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+      <main className="container py-10 md:py-14 min-h-[60vh] space-y-8">
+        <div className="bg-white rounded-3xl border border-[#FAD1E0] p-6 sm:p-10 shadow-card flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
           <div>
             <div className="eyebrow">Client Portal</div>
-            <h1 className="serif text-4xl md:text-5xl text-[#1E1917] font-normal mt-1">Your Account</h1>
-            <p className="text-sm text-[#7A726D] mt-1">{session.user.email}</p>
+            <h1 className="text-3xl sm:text-4xl text-[#2A1E24] font-extrabold mt-1">Your Account</h1>
+            <p className="text-sm text-[#8A7380] mt-1 font-medium">{session.user.email}</p>
           </div>
           <button
             onClick={logout}
-            className="px-5 py-2.5 rounded-full border border-[#DFD7CF] bg-white hover:border-[#1E1917] text-xs font-semibold text-[#1E1917] transition shadow-subtle"
+            className="px-6 py-2.5 rounded-full border border-[#FAD1E0] bg-white hover:border-[#E60067] text-xs font-bold text-[#2A1E24] hover:text-[#E60067] transition shadow-subtle"
           >
             Sign out
           </button>
@@ -117,16 +117,16 @@ function AccountContent(){
 
         <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="serif text-2xl md:text-3xl text-[#1E1917]">Your Past Orders</h2>
-            <Link href="/cakes" className="text-xs font-semibold text-[#933D32] hover:underline">
+            <h2 className="text-2xl text-[#2A1E24] font-extrabold">Your Past Orders</h2>
+            <Link href="/cakes" className="text-xs font-bold text-[#E60067] hover:underline">
               Browse More Cakes &rarr;
             </Link>
           </div>
 
           {orders.length===0?(
-            <div className="bg-white rounded-2xl border border-[#EAE3DC] p-10 text-center space-y-3 shadow-subtle">
-              <p className="text-sm text-[#7A726D]">You haven’t placed any celebration orders yet.</p>
-              <Link className="inline-block px-5 py-2.5 rounded-full bg-[#1E1917] text-white text-xs font-semibold shadow-sm hover:bg-[#332C29] transition" href="/cakes">
+            <div className="bg-white rounded-3xl border border-[#FAD1E0] p-10 text-center space-y-3 shadow-card">
+              <p className="text-sm text-[#8A7380]">You haven’t placed any celebration orders yet.</p>
+              <Link className="inline-block px-7 py-3 rounded-full bg-[#E60067] text-white text-xs font-black uppercase tracking-wider shadow-pink-glow hover:bg-[#C70055] transition" href="/cakes">
                 Browse Cake Menu
               </Link>
             </div>
@@ -136,26 +136,26 @@ function AccountContent(){
                 <Link
                   href={`/account/orders/${o.order_number}`}
                   key={o.id}
-                  className="bg-white rounded-2xl border border-[#EAE3DC] hover:border-[#DFD7CF] p-5 sm:p-6 flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition shadow-subtle hover:shadow-card"
+                  className="bg-white rounded-2xl border border-[#FAD1E0] hover:border-[#E60067] p-5 sm:p-6 flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition shadow-subtle hover:shadow-card"
                 >
                   <div className="space-y-1">
-                    <div className="font-semibold text-base text-[#1E1917] flex items-center gap-2">
-                      <span>{o.order_number}</span>
-                      <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#FAF8F5] border border-[#EAE3DC] text-[#7A726D] font-normal capitalize">
+                    <div className="font-extrabold text-base text-[#2A1E24] flex items-center gap-2">
+                      <span className="font-mono">{o.order_number}</span>
+                      <span className="text-xs px-3 py-0.5 rounded-full bg-[#FFE4EE] border border-[#FAD1E0] text-[#E60067] font-black capitalize">
                         {o.status.replaceAll('_',' ')}
                       </span>
                     </div>
-                    <div className="text-xs text-[#7A726D]">
+                    <div className="text-xs text-[#8A7380]">
                       {(o.order_items||[]).map((i:any)=>`${i.quantity} × ${i.product_snapshot?.name||'Cake'}`).join(', ')}
                     </div>
                   </div>
 
                   <div className="sm:text-right">
-                    <div className="font-bold text-base text-[#1E1917]">
+                    <div className="font-black text-base text-[#2A1E24]">
                       {naira(o.total_kobo)}
                     </div>
-                    <div className="text-[11px] text-[#7A726D] capitalize mt-0.5">
-                      Payment: <b className="text-[#1E1917]">{o.payment_status}</b>
+                    <div className="text-[11px] text-[#8A7380] capitalize mt-0.5">
+                      Payment: <b className="text-[#2A1E24]">{o.payment_status}</b>
                     </div>
                   </div>
                 </Link>
@@ -168,14 +168,14 @@ function AccountContent(){
   }
 
   return (
-    <main className="container py-12 md:py-16 min-h-[55vh]">
-      <div className="max-w-md mx-auto bg-white rounded-3xl border border-[#EAE3DC] p-8 sm:p-10 shadow-card">
+    <main className="container py-10 md:py-14 min-h-[60vh]">
+      <div className="max-w-md mx-auto bg-white rounded-3xl border border-[#FAD1E0] p-8 sm:p-10 shadow-card">
         <div className="text-center space-y-2 mb-6">
           <div className="eyebrow">Your Speed Cake</div>
-          <h1 className="serif text-3xl sm:text-4xl text-[#1E1917] font-normal">
+          <h1 className="text-3xl sm:text-4xl text-[#2A1E24] font-extrabold">
             {mode==='login'?'Welcome back':mode==='signup'?'Create an account':mode==='reset'?'Reset password':'Choose a new password'}
           </h1>
-          <p className="text-xs text-[#7A726D] leading-relaxed">
+          <p className="text-xs text-[#8A7380] leading-relaxed">
             {isOrderFlow
               ? 'Create an account or sign in to continue with your cake order.'
               : mode==='signup'
@@ -187,19 +187,19 @@ function AccountContent(){
         </div>
 
         {isOrderFlow&&(
-          <div className="mb-6 p-4 bg-[#F8ECE9] rounded-xl border border-[#E8D4CF] text-xs text-[#933D32]">
-            <p className="font-semibold">Your cake configuration is safely saved.</p>
-            <p className="text-[11px] text-[#7A726D] mt-0.5">Sign in or create an account to proceed directly to checkout.</p>
+          <div className="mb-6 p-4 bg-[#FFE4EE] rounded-2xl border border-[#FAD1E0] text-xs text-[#E60067]">
+            <p className="font-extrabold">Your cake configuration is safely saved.</p>
+            <p className="text-[11px] text-[#8A7380] mt-0.5">Sign in or create an account to proceed directly to checkout.</p>
           </div>
         )}
 
         {mode!=='reset'&&mode!=='new-password'&&(
-          <div className="bg-[#FAF8F5] p-1 rounded-full border border-[#EAE3DC] flex mb-6">
+          <div className="bg-[#FFF5F8] p-1 rounded-full border border-[#FAD1E0] flex mb-6">
             <button
               type="button"
               onClick={()=>{setMessage('');setMode('login')}}
-              className={`py-2 text-xs flex-1 rounded-full font-semibold transition ${
-                mode==='login'?'bg-white text-[#1E1917] shadow-sm':'text-[#7A726D] hover:text-[#1E1917]'
+              className={`py-2 text-xs flex-1 rounded-full font-bold transition ${
+                mode==='login'?'bg-[#E60067] text-white shadow-pink-glow':'text-[#8A7380] hover:text-[#2A1E24]'
               }`}
             >
               Sign in
@@ -207,8 +207,8 @@ function AccountContent(){
             <button
               type="button"
               onClick={()=>{setMessage('');setMode('signup')}}
-              className={`py-2 text-xs flex-1 rounded-full font-semibold transition ${
-                mode==='signup'?'bg-white text-[#1E1917] shadow-sm':'text-[#7A726D] hover:text-[#1E1917]'
+              className={`py-2 text-xs flex-1 rounded-full font-bold transition ${
+                mode==='signup'?'bg-[#E60067] text-white shadow-pink-glow':'text-[#8A7380] hover:text-[#2A1E24]'
               }`}
             >
               Create account
@@ -219,7 +219,7 @@ function AccountContent(){
         <form className="space-y-4" onSubmit={submit}>
           {mode==='signup'&&(
             <div>
-              <label className="block text-xs uppercase tracking-wider text-[#1E1917] mb-1 font-semibold">
+              <label className="block text-xs uppercase tracking-wider text-[#2A1E24] mb-1 font-bold">
                 Your Full Name
               </label>
               <input
@@ -228,14 +228,14 @@ function AccountContent(){
                 onChange={e=>setName(e.target.value)}
                 placeholder="e.g. Chimamanda Adichie"
                 autoComplete="name"
-                className="w-full px-4 py-3 rounded-xl border border-[#EAE3DC] bg-[#FAF8F5] text-sm text-[#1E1917] placeholder:text-[#9C938E] outline-none focus:border-[#1E1917] focus:bg-white focus:ring-1 focus:ring-[#1E1917] transition shadow-subtle"
+                className="w-full px-4 py-3 rounded-2xl border border-[#FAD1E0] bg-[#FFF5F8] text-sm text-[#2A1E24] placeholder:text-[#8A7380] outline-none focus:border-[#E60067] focus:bg-white focus:ring-2 focus:ring-[#FFE4EE] transition shadow-subtle"
               />
             </div>
           )}
 
           {mode!=='new-password'&&(
             <div>
-              <label className="block text-xs uppercase tracking-wider text-[#1E1917] mb-1 font-semibold">
+              <label className="block text-xs uppercase tracking-wider text-[#2A1E24] mb-1 font-bold">
                 Email Address
               </label>
               <input
@@ -245,14 +245,14 @@ function AccountContent(){
                 onChange={e=>setEmail(e.target.value)}
                 placeholder="e.g. name@example.com"
                 autoComplete="email"
-                className="w-full px-4 py-3 rounded-xl border border-[#EAE3DC] bg-[#FAF8F5] text-sm text-[#1E1917] placeholder:text-[#9C938E] outline-none focus:border-[#1E1917] focus:bg-white focus:ring-1 focus:ring-[#1E1917] transition shadow-subtle"
+                className="w-full px-4 py-3 rounded-2xl border border-[#FAD1E0] bg-[#FFF5F8] text-sm text-[#2A1E24] placeholder:text-[#8A7380] outline-none focus:border-[#E60067] focus:bg-white focus:ring-2 focus:ring-[#FFE4EE] transition shadow-subtle"
               />
             </div>
           )}
 
           {mode!=='reset'&&(
             <div>
-              <label className="block text-xs uppercase tracking-wider text-[#1E1917] mb-1 font-semibold">
+              <label className="block text-xs uppercase tracking-wider text-[#2A1E24] mb-1 font-bold">
                 Password
               </label>
               <input
@@ -263,30 +263,30 @@ function AccountContent(){
                 onChange={e=>setPassword(e.target.value)}
                 placeholder={mode==='new-password'?'New password (8+ characters)':'Password (8+ characters)'}
                 autoComplete={mode==='login'?'current-password':'new-password'}
-                className="w-full px-4 py-3 rounded-xl border border-[#EAE3DC] bg-[#FAF8F5] text-sm text-[#1E1917] placeholder:text-[#9C938E] outline-none focus:border-[#1E1917] focus:bg-white focus:ring-1 focus:ring-[#1E1917] transition shadow-subtle"
+                className="w-full px-4 py-3 rounded-2xl border border-[#FAD1E0] bg-[#FFF5F8] text-sm text-[#2A1E24] placeholder:text-[#8A7380] outline-none focus:border-[#E60067] focus:bg-white focus:ring-2 focus:ring-[#FFE4EE] transition shadow-subtle"
               />
             </div>
           )}
 
           <button
             disabled={busy}
-            className="w-full py-3.5 px-6 rounded-full bg-[#1E1917] hover:bg-[#332C29] text-white text-xs font-semibold transition-all shadow-card hover:shadow-card-hover disabled:opacity-60 cursor-pointer"
+            className="w-full py-4 px-6 rounded-full bg-[#E60067] hover:bg-[#C70055] text-white text-xs font-black uppercase tracking-wider transition-all shadow-pink-glow hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60 cursor-pointer"
           >
             {busy?'Please wait…':mode==='login'?'Sign in':mode==='signup'?'Create account':mode==='reset'?'Send reset link':'Save new password'}
           </button>
         </form>
 
         {message&&(
-          <div role="status" className="mt-4 p-3.5 rounded-xl bg-[#F8ECE9] border border-[#E8D4CF] text-xs text-[#933D32]">
+          <div role="status" className="mt-4 p-3.5 rounded-2xl bg-[#FFE4EE] border border-[#FAD1E0] text-xs text-[#E60067] font-bold">
             {message}
           </div>
         )}
 
-        <div className="flex justify-between text-xs mt-6 text-[#7A726D]">
+        <div className="flex justify-between text-xs mt-6 text-[#8A7380]">
           {mode!=='new-password'&&(
             <button
               type="button"
-              className="hover:text-[#1E1917] underline"
+              className="hover:text-[#E60067] underline font-medium"
               onClick={()=>{setMessage('');setMode(mode==='login'?'signup':'login')}}
             >
               {mode==='login'?'Need an account? Sign up':'Already have an account? Sign in'}
@@ -296,7 +296,7 @@ function AccountContent(){
           {mode!=='new-password'&&(
             <button
               type="button"
-              className="hover:text-[#1E1917] underline"
+              className="hover:text-[#E60067] underline font-medium"
               onClick={()=>{setMessage('');setMode('reset')}}
             >
               Forgot password?
@@ -304,8 +304,8 @@ function AccountContent(){
           )}
         </div>
 
-        <p className="text-center text-xs text-[#7A726D] mt-8 pt-4 border-t border-[#F2ECE5]">
-          <Link className="hover:text-[#1E1917] underline" href="/cakes">
+        <p className="text-center text-xs text-[#8A7380] mt-8 pt-4 border-t border-[#FAD1E0]/60">
+          <Link className="hover:text-[#E60067] underline font-medium" href="/cakes">
             Continue browsing celebration cakes &rarr;
           </Link>
         </p>
@@ -313,5 +313,4 @@ function AccountContent(){
     </main>
   );
 }
-export default function Account(){return <Suspense fallback={<main className="container py-20">Loading account…</main>}><AccountContent/></Suspense>}
-
+export default function Account(){return <Suspense fallback={<main className="container py-20 text-center font-bold text-[#8A7380]">Loading account…</main>}><AccountContent/></Suspense>}

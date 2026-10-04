@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -18,16 +20,16 @@ html {
 
 body {
   margin: 0;
-  background-color: #FAF8F5;
-  color: #4A4340;
-  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  background-color: #FFF5F8;
+  color: #55424D;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
   line-height: 1.6;
 }
 
 /* Custom Text Selection */
 ::selection {
-  background-color: #F8ECE9;
-  color: #933D32;
+  background-color: #FFE4EE;
+  color: #E60067;
 }
 
 a {
@@ -46,19 +48,23 @@ button {
 /* Typography Utilities */
 .serif {
   font-family: 'Playfair Display', Didot, 'Bodoni MT', Georgia, serif;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
+}
+
+.handwriting {
+  font-family: 'Caveat', 'Dancing Script', cursive;
 }
 
 .eyebrow {
-  font-size: 11px;
-  letter-spacing: 0.16em;
+  font-size: 12px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #933D32;
-  font-weight: 600;
+  color: #E60067;
+  font-weight: 700;
 }
 
 .container {
-  width: min(1200px, calc(100% - 48px));
+  width: min(1240px, calc(100% - 48px));
   margin-left: auto;
   margin-right: auto;
 }
@@ -77,8 +83,16 @@ button {
 }
 
 .glass-panel {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(223, 215, 207, 0.6);
+  border: 1px solid rgba(250, 209, 224, 0.7);
+}
+
+/* Confectionery Arch Frame */
+.arch-card {
+  border-top-left-radius: 9999px;
+  border-top-right-radius: 9999px;
+  border-bottom-left-radius: 2rem;
+  border-bottom-right-radius: 2rem;
 }

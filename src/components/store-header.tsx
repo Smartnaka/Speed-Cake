@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { ShoppingBag, UserRound, Menu, X, LogIn, UserPlus } from 'lucide-react'
+import { ShoppingBag, UserRound, Menu, X, LogIn, UserPlus, Cake } from 'lucide-react'
 import { supabaseBrowser } from '@/lib/supabase/browser'
 import { readCart } from '@/lib/cart'
 
@@ -57,35 +57,46 @@ export function StoreHeader() {
   const isLoading = authState === 'loading'
 
   return (
-    <header className="sticky top-0 z-50 bg-[#FAF8F5]/90 backdrop-blur-md border-b border-[#EAE3DC]/80 transition-all">
-      <div className="container min-h-[72px] flex items-center justify-between gap-4">
-        {/* Brand Logo */}
-        <Link href="/" className="serif text-[28px] tracking-tight text-[#1E1917] hover:opacity-90 transition">
-          speed cake<span className="text-[#933D32]">.</span>
+    <header className="sticky top-0 z-50 bg-[#FFF5F8]/95 backdrop-blur-md border-b border-[#FAD1E0]/80 transition-all">
+      <div className="container min-h-[76px] flex items-center justify-between gap-4">
+        {/* Brand Logo with Sweet Confectionery Icon */}
+        <Link href="/" className="flex items-center gap-2 group">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#E60067] to-[#FF4B93] text-white flex items-center justify-center shadow-subtle group-hover:scale-105 transition-transform duration-200">
+            <Cake size={20} strokeWidth={2.2} />
+          </div>
+          <span className="font-extrabold text-2xl tracking-tight text-[#2A1E24] group-hover:text-[#E60067] transition-colors">
+            Speed Cake<span className="text-[#E60067]">.</span>
+          </span>
         </Link>
 
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1.5 text-[13px] font-medium text-[#4A4340]">
+        <nav className="hidden md:flex items-center gap-1 text-[14px] font-semibold text-[#55424D]">
+          <Link
+            href="/"
+            className="px-4 py-2 rounded-full hover:bg-[#FFEBF2] hover:text-[#E60067] transition-colors"
+          >
+            Home
+          </Link>
           <Link
             href="/cakes"
-            className="px-3.5 py-1.5 rounded-full hover:bg-[#F2ECE5] hover:text-[#1E1917] transition"
+            className="px-4 py-2 rounded-full hover:bg-[#FFEBF2] hover:text-[#E60067] transition-colors"
           >
-            Shop all
+            Cakes
           </Link>
           {categories.slice(0, 3).map(category => (
             <Link
               key={category}
               href={`/cakes?category=${encodeURIComponent(category)}`}
-              className="px-3.5 py-1.5 rounded-full hover:bg-[#F2ECE5] hover:text-[#1E1917] transition"
+              className="px-4 py-2 rounded-full hover:bg-[#FFEBF2] hover:text-[#E60067] transition-colors"
             >
               {category}
             </Link>
           ))}
           <Link
             href="/track"
-            className="px-3.5 py-1.5 rounded-full hover:bg-[#F2ECE5] hover:text-[#1E1917] transition"
+            className="px-4 py-2 rounded-full hover:bg-[#FFEBF2] hover:text-[#E60067] transition-colors"
           >
-            Track order
+            Track Order
           </Link>
         </nav>
 
@@ -97,19 +108,19 @@ export function StoreHeader() {
           )}
 
           {isGuest && (
-            <div className="hidden md:flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-2.5">
               <Link
                 href="/account"
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#4A4340] hover:text-[#1E1917] rounded-full hover:bg-[#F2ECE5] transition"
+                className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-[#55424D] hover:text-[#E60067] rounded-full hover:bg-[#FFEBF2] transition-colors"
               >
-                <LogIn size={14} strokeWidth={2} />
+                <LogIn size={15} strokeWidth={2.2} />
                 <span>Sign in</span>
               </Link>
               <Link
                 href="/account?mode=signup"
-                className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#1E1917] hover:bg-[#332C29] rounded-full shadow-sm transition"
+                className="flex items-center gap-1.5 px-5 py-2.5 text-xs font-bold text-white bg-[#E60067] hover:bg-[#C70055] rounded-full shadow-pink-glow transition-all active:scale-[0.98]"
               >
-                <UserPlus size={14} strokeWidth={2} />
+                <UserPlus size={15} strokeWidth={2.2} />
                 <span>Create account</span>
               </Link>
             </div>
@@ -118,22 +129,22 @@ export function StoreHeader() {
           {isSignedIn && (
             <Link
               href="/account"
-              className="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#DFD7CF] bg-white/80 hover:border-[#1E1917] text-xs font-medium text-[#1E1917] shadow-sm transition"
+              className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full border border-[#FAD1E0] bg-white hover:border-[#E60067] text-xs font-bold text-[#2A1E24] shadow-subtle transition-all"
             >
-              <UserRound size={14} strokeWidth={2} className="text-[#933D32]" />
+              <UserRound size={15} strokeWidth={2.2} className="text-[#E60067]" />
               <span>Account</span>
             </Link>
           )}
 
-          {/* Cart Icon */}
+          {/* Cart Icon with Vibrant Badge */}
           <Link
             aria-label={`Cart, ${count} items`}
             href="/cart"
-            className="relative p-2.5 rounded-full bg-white/70 hover:bg-white border border-[#EAE3DC] text-[#1E1917] transition shadow-sm"
+            className="relative p-2.5 rounded-full bg-white hover:bg-[#FFEBF2] border border-[#FAD1E0] text-[#2A1E24] transition shadow-subtle group"
           >
-            <ShoppingBag size={18} strokeWidth={1.8} />
+            <ShoppingBag size={20} strokeWidth={2} className="group-hover:text-[#E60067] transition-colors" />
             {count > 0 && (
-              <span className="absolute -right-1.5 -top-1.5 rounded-full bg-[#933D32] text-white w-5 h-5 flex items-center justify-center text-[10px] font-bold shadow-sm animate-in zoom-in-50">
+              <span className="absolute -right-1.5 -top-1.5 rounded-full bg-[#E60067] text-white w-5 h-5 flex items-center justify-center text-[10px] font-black shadow-pink-glow animate-in zoom-in-50">
                 {count}
               </span>
             )}
@@ -142,7 +153,7 @@ export function StoreHeader() {
           {/* Mobile Navigation Toggle Button */}
           <button
             aria-label={open ? 'Close menu' : 'Open menu'}
-            className="md:hidden p-2 rounded-full border border-[#EAE3DC] bg-white text-[#1E1917] hover:bg-[#F2ECE5] transition"
+            className="md:hidden p-2.5 rounded-full border border-[#FAD1E0] bg-white text-[#2A1E24] hover:bg-[#FFEBF2] transition"
             onClick={() => setOpen(!open)}
           >
             {open ? <X size={20} /> : <Menu size={20} />}
@@ -152,24 +163,24 @@ export function StoreHeader() {
 
       {/* Mobile Drawer Menu */}
       {open && (
-        <div className="md:hidden border-t border-[#EAE3DC] bg-[#FAF8F5] px-6 py-6 space-y-5 animate-in slide-in-from-top-2 duration-200">
-          <div className="text-xs uppercase font-semibold tracking-widest text-[#933D32]">
-            Collections
+        <div className="md:hidden border-t border-[#FAD1E0] bg-[#FFF5F8] px-6 py-6 space-y-5 animate-in slide-in-from-top-2 duration-200">
+          <div className="text-xs uppercase font-extrabold tracking-wider text-[#E60067]">
+            Cake Categories
           </div>
-          <div className="grid grid-cols-2 gap-2 text-sm font-medium">
+          <div className="grid grid-cols-2 gap-2 text-sm font-semibold">
             <Link
               onClick={() => setOpen(false)}
               href="/cakes"
-              className="p-3 rounded-xl bg-white border border-[#EAE3DC] text-[#1E1917]"
+              className="p-3 rounded-2xl bg-white border border-[#FAD1E0] text-[#2A1E24] hover:border-[#E60067]"
             >
-              Shop all cakes
+              Shop All Cakes
             </Link>
             {categories.map(category => (
               <Link
                 onClick={() => setOpen(false)}
                 key={category}
                 href={`/cakes?category=${encodeURIComponent(category)}`}
-                className="p-3 rounded-xl bg-white border border-[#EAE3DC] text-[#1E1917]"
+                className="p-3 rounded-2xl bg-white border border-[#FAD1E0] text-[#2A1E24] hover:border-[#E60067]"
               >
                 {category}
               </Link>
@@ -179,15 +190,15 @@ export function StoreHeader() {
           <Link
             onClick={() => setOpen(false)}
             href="/track"
-            className="block text-sm font-medium text-[#4A4340] py-2 border-b border-[#EAE3DC]"
+            className="block text-sm font-bold text-[#55424D] py-2 border-b border-[#FAD1E0] hover:text-[#E60067]"
           >
-            Track order &rarr;
+            Track Order &rarr;
           </Link>
 
           {/* Mobile Auth Actions */}
           <div className="pt-2">
             {isLoading && (
-              <span className="text-xs text-[#7A726D]">Checking account session…</span>
+              <span className="text-xs text-[#8A7380]">Checking account session…</span>
             )}
 
             {isGuest && (
@@ -195,7 +206,7 @@ export function StoreHeader() {
                 <Link
                   onClick={() => setOpen(false)}
                   href="/account"
-                  className="flex items-center justify-center gap-2 p-3 rounded-xl border border-[#DFD7CF] bg-white text-xs font-semibold text-[#1E1917]"
+                  className="flex items-center justify-center gap-2 p-3 rounded-2xl border border-[#FAD1E0] bg-white text-xs font-bold text-[#2A1E24]"
                 >
                   <LogIn size={15} />
                   Sign in
@@ -203,7 +214,7 @@ export function StoreHeader() {
                 <Link
                   onClick={() => setOpen(false)}
                   href="/account?mode=signup"
-                  className="flex items-center justify-center gap-2 p-3 rounded-xl bg-[#1E1917] text-xs font-semibold text-white shadow-sm"
+                  className="flex items-center justify-center gap-2 p-3 rounded-2xl bg-[#E60067] text-xs font-bold text-white shadow-pink-glow"
                 >
                   <UserPlus size={15} />
                   Create account
@@ -215,9 +226,9 @@ export function StoreHeader() {
               <Link
                 onClick={() => setOpen(false)}
                 href="/account"
-                className="flex items-center justify-center gap-2 p-3.5 rounded-xl border border-[#DFD7CF] bg-white text-sm font-semibold text-[#1E1917] shadow-sm"
+                className="flex items-center justify-center gap-2 p-3.5 rounded-2xl border border-[#FAD1E0] bg-white text-sm font-bold text-[#2A1E24] shadow-subtle"
               >
-                <UserRound size={16} className="text-[#933D32]" />
+                <UserRound size={16} className="text-[#E60067]" />
                 Your account
               </Link>
             )}

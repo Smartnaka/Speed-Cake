@@ -56,14 +56,14 @@ function PaymentReturnContent() {
   useEffect(() => { void verify() }, [verify])
 
   return (
-    <main className="min-h-[75vh] flex items-center justify-center py-16 px-4 bg-[#FAF8F5]">
-      <div className="w-full max-w-lg bg-white rounded-3xl border border-[#EAE3DC] p-8 md:p-12 shadow-card text-center">
+    <main className="min-h-[75vh] flex items-center justify-center py-16 px-4 bg-[#FFF5F8]">
+      <div className="w-full max-w-lg bg-white rounded-3xl border border-[#FAD1E0] p-8 md:p-12 shadow-card text-center">
         {state === 'checking' && (
           <div className="flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full border-2 border-[#EAE3DC] border-t-[#933D32] animate-spin mb-6" />
+            <div className="w-16 h-16 rounded-full border-3 border-[#FAD1E0] border-t-[#E60067] animate-spin mb-6" />
             <span className="eyebrow mb-2">Secure Verification</span>
-            <h1 className="serif text-3xl md:text-4xl text-[#1E1917] mb-3">Checking Payment…</h1>
-            <p className="text-[#655953] text-sm leading-relaxed max-w-sm">{message}</p>
+            <h1 className="text-3xl md:text-4xl text-[#2A1E24] font-extrabold mb-3">Checking Payment…</h1>
+            <p className="text-[#55424D] text-sm leading-relaxed max-w-sm">{message}</p>
           </div>
         )}
 
@@ -75,19 +75,19 @@ function PaymentReturnContent() {
               </svg>
             </div>
             <span className="eyebrow text-emerald-800 mb-2">Payment Confirmed</span>
-            <h1 className="serif text-3xl md:text-4xl text-[#1E1917] mb-3">Your Order is Queued!</h1>
-            <p className="text-[#655953] text-sm leading-relaxed max-w-sm mb-6">{message}</p>
+            <h1 className="text-3xl md:text-4xl text-[#2A1E24] font-extrabold mb-3">Your Order is Queued!</h1>
+            <p className="text-[#55424D] text-sm leading-relaxed max-w-sm mb-6">{message}</p>
 
             {order && (
-              <div className="bg-[#FAF8F5] border border-[#EAE3DC] rounded-2xl px-5 py-3 mb-8 w-full max-w-xs">
-                <span className="block text-xs uppercase tracking-widest text-[#7C6E65] font-semibold mb-0.5">Order Reference</span>
-                <span className="font-mono text-base font-semibold text-[#1E1917]">{order}</span>
+              <div className="bg-[#FFE4EE] border border-[#FAD1E0] rounded-2xl px-5 py-3 mb-8 w-full max-w-xs">
+                <span className="block text-xs uppercase tracking-widest text-[#E60067] font-bold mb-0.5">Order Reference</span>
+                <span className="font-mono text-base font-black text-[#2A1E24]">{order}</span>
               </div>
             )}
 
             <Link
               href={`/account/orders/${order}`}
-              className="w-full max-w-xs inline-flex items-center justify-center bg-[#933D32] hover:bg-[#7D3228] text-white font-medium px-6 py-3.5 rounded-full text-sm transition-all duration-200 shadow-subtle active:scale-[0.99]"
+              className="w-full max-w-xs inline-flex items-center justify-center bg-[#E60067] hover:bg-[#C70055] text-white font-black uppercase tracking-wider px-6 py-4 rounded-full text-xs transition-all duration-200 shadow-pink-glow hover:scale-105 active:scale-95"
             >
               View Order Receipt & Tracking
             </Link>
@@ -102,20 +102,20 @@ function PaymentReturnContent() {
               </svg>
             </div>
             <span className="eyebrow text-amber-800 mb-2">Verification Notice</span>
-            <h1 className="serif text-3xl text-[#1E1917] mb-3">Payment Pending</h1>
-            <p className="text-[#655953] text-sm leading-relaxed max-w-sm mb-8">{message}</p>
+            <h1 className="text-3xl text-[#2A1E24] font-extrabold mb-3">Payment Pending</h1>
+            <p className="text-[#55424D] text-sm leading-relaxed max-w-sm mb-8">{message}</p>
 
             <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
               <button
                 type="button"
                 onClick={() => void verify()}
-                className="flex-1 bg-[#933D32] hover:bg-[#7D3228] text-white font-medium px-5 py-3 rounded-full text-sm transition-all duration-200 shadow-subtle text-center"
+                className="flex-1 bg-[#E60067] hover:bg-[#C70055] text-white font-black uppercase tracking-wider px-5 py-3 rounded-full text-xs transition-all duration-200 shadow-pink-glow text-center"
               >
                 Retry Check
               </button>
               <Link
                 href="/account"
-                className="flex-1 bg-white hover:bg-[#FAF8F5] text-[#1E1917] font-medium px-5 py-3 rounded-full text-sm border border-[#EAE3DC] transition-all duration-200 text-center"
+                className="flex-1 bg-white hover:bg-[#FFF5F8] text-[#2A1E24] font-bold px-5 py-3 rounded-full text-xs border border-[#FAD1E0] transition-all duration-200 text-center"
               >
                 My Account
               </Link>
@@ -131,10 +131,10 @@ export default function PaymentReturn() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-[70vh] flex items-center justify-center bg-[#FAF8F5]">
+        <main className="min-h-[70vh] flex items-center justify-center bg-[#FFF5F8]">
           <div className="text-center">
-            <div className="w-12 h-12 rounded-full border-2 border-[#EAE3DC] border-t-[#933D32] animate-spin mx-auto mb-4" />
-            <p className="text-sm font-medium text-[#7C6E65]">Loading confirmation…</p>
+            <div className="w-12 h-12 rounded-full border-3 border-[#FAD1E0] border-t-[#E60067] animate-spin mx-auto mb-4" />
+            <p className="text-sm font-bold text-[#8A7380]">Loading confirmation…</p>
           </div>
         </main>
       }

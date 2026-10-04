@@ -58,13 +58,13 @@ export default function Track() {
     (order.fulfillment_type === 'pickup' || order.delivery_window === 'Store Pickup')
 
   return (
-    <main className="container py-12 md:py-16 min-h-[55vh] space-y-8">
-      <div className="max-w-xl space-y-2">
+    <main className="container py-10 md:py-14 min-h-[60vh] space-y-8">
+      <div className="max-w-xl space-y-1">
         <div className="eyebrow">Real-Time Kitchen Updates</div>
-        <h1 className="serif text-4xl md:text-5xl text-[#1E1917] font-normal tracking-tight">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl text-[#2A1E24] font-extrabold tracking-tight">
           Track Your Order
         </h1>
-        <p className="text-sm text-[#7A726D] leading-relaxed">
+        <p className="text-sm text-[#8A7380] leading-relaxed">
           Enter your order reference code (e.g. SC-...) to view live preparation progress and delivery status.
         </p>
       </div>
@@ -72,69 +72,69 @@ export default function Track() {
       {/* Lookup Form */}
       <form onSubmit={lookup} className="flex flex-col sm:flex-row gap-3 max-w-xl">
         <div className="relative flex-1">
-          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#7A726D]" />
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8A7380]" />
           <input
             aria-label="Order number"
             required
             placeholder="e.g. SC-A8F4C2D1E0"
             value={number}
             onChange={e => setNumber(e.target.value)}
-            className="w-full pl-11 pr-4 py-3.5 rounded-full border border-[#EAE3DC] bg-white text-sm text-[#1E1917] placeholder:text-[#9C938E] outline-none focus:border-[#1E1917] focus:ring-1 focus:ring-[#1E1917] transition shadow-subtle"
+            className="w-full pl-11 pr-4 py-3.5 rounded-full border border-[#FAD1E0] bg-white text-sm text-[#2A1E24] placeholder:text-[#8A7380] outline-none focus:border-[#E60067] focus:ring-2 focus:ring-[#FFE4EE] transition shadow-subtle"
           />
         </div>
         <button
           disabled={busy}
-          className="px-7 py-3.5 rounded-full bg-[#1E1917] hover:bg-[#332C29] text-white text-sm font-semibold transition-all shadow-card hover:shadow-card-hover disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+          className="px-8 py-3.5 rounded-full bg-[#E60067] hover:bg-[#C70055] text-white text-xs font-black uppercase tracking-wider transition-all shadow-pink-glow hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
         >
           {busy ? 'Checking…' : 'Locate Order'}
         </button>
       </form>
 
       {error && (
-        <div role="alert" className="p-4 rounded-xl bg-[#F8ECE9] border border-[#E8D4CF] text-[#933D32] text-xs max-w-xl">
+        <div role="alert" className="p-4 rounded-2xl bg-[#FFE4EE] border border-[#FAD1E0] text-[#E60067] text-xs font-bold max-w-xl">
           {error}
         </div>
       )}
 
       {order && (
-        <div className="bg-white rounded-3xl border border-[#EAE3DC] p-6 sm:p-10 max-w-3xl space-y-8 shadow-card animate-in fade-in-50 duration-300">
+        <div className="bg-white rounded-3xl border border-[#FAD1E0] p-6 sm:p-10 max-w-3xl space-y-8 shadow-card animate-in fade-in-50 duration-300">
           {/* Header Card */}
-          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-3 pb-6 border-b border-[#F2ECE5]">
+          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-3 pb-6 border-b border-[#FAD1E0]/60">
             <div>
               <span className="eyebrow">Order Reference</span>
-              <h2 className="serif text-3xl text-[#1E1917] font-normal mt-1">{order.order_number}</h2>
+              <h2 className="text-3xl text-[#2A1E24] font-black mt-1 font-mono">{order.order_number}</h2>
             </div>
             <div>
-              <span className="inline-block px-3.5 py-1.5 rounded-full bg-[#F8ECE9] border border-[#E8D4CF] text-xs font-semibold capitalize text-[#933D32]">
+              <span className="inline-block px-4 py-1.5 rounded-full bg-[#FFE4EE] border border-[#FAD1E0] text-xs font-black capitalize text-[#E60067]">
                 {order.status.replaceAll('_', ' ')}
               </span>
             </div>
           </div>
 
           {/* Fulfillment Badge & Info */}
-          <div className="p-5 bg-[#FAF8F5] rounded-2xl border border-[#EAE3DC] text-xs text-[#5A524D] space-y-2.5">
-            <div className="flex items-center gap-2 font-semibold text-sm text-[#1E1917]">
-              {isPickup ? <Store size={18} className="text-[#933D32]" /> : <Truck size={18} className="text-[#933D32]" />}
+          <div className="p-5 bg-[#FFF5F8] rounded-2xl border border-[#FAD1E0] text-xs text-[#55424D] space-y-2.5">
+            <div className="flex items-center gap-2 font-extrabold text-sm text-[#2A1E24]">
+              {isPickup ? <Store size={18} className="text-[#E60067]" /> : <Truck size={18} className="text-[#E60067]" />}
               <span>{isPickup ? 'Store Pickup Order' : 'Doorstep Delivery Order'}</span>
             </div>
 
             {!isPickup ? (
-              <div className="space-y-1.5 pl-6 text-[#5A524D]">
+              <div className="space-y-1.5 pl-6 text-[#55424D]">
                 <div className="flex items-center gap-2">
-                  <MapPin size={13} className="text-[#933D32]" />
+                  <MapPin size={13} className="text-[#E60067]" />
                   <span>
                     Destination: <b>{order.delivery_address}</b>, {order.city}, {order.state}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Calendar size={13} className="text-[#933D32]" />
+                  <Calendar size={13} className="text-[#E60067]" />
                   <span>
                     Delivery Schedule: <b>{order.delivery_date}</b> ({order.delivery_window})
                   </span>
                 </div>
               </div>
             ) : (
-              <div className="space-y-1.5 pl-6 text-[#5A524D]">
+              <div className="space-y-1.5 pl-6 text-[#55424D]">
                 <div>
                   Pickup Location: <b>{SPEEDCAKE_PICKUP_LOCATION.name}</b>
                 </div>
@@ -148,7 +148,7 @@ export default function Track() {
 
           {/* Progress Timeline */}
           <div className="space-y-3">
-            <h3 className="text-xs uppercase tracking-wider font-semibold text-[#1E1917]">
+            <h3 className="text-xs uppercase tracking-wider font-extrabold text-[#2A1E24]">
               Kitchen &middot; Delivery Milestones
             </h3>
             <div className="grid sm:grid-cols-2 gap-2.5">
@@ -157,18 +157,18 @@ export default function Track() {
                 return (
                   <div
                     key={step}
-                    className={`text-xs px-4 py-3 rounded-xl flex items-center gap-3 border transition-all ${
+                    className={`text-xs px-4 py-3 rounded-2xl flex items-center gap-3 border transition-all ${
                       isPassed
-                        ? 'bg-[#1E1917] text-white border-[#1E1917] shadow-sm'
-                        : 'bg-[#FAF8F5] text-[#7A726D] border-[#EAE3DC]'
+                        ? 'bg-[#E60067] text-white border-[#E60067] shadow-pink-glow font-bold'
+                        : 'bg-[#FFF5F8] text-[#8A7380] border-[#FAD1E0]'
                     }`}
                   >
                     {isPassed ? (
-                      <PackageCheck size={16} className="text-[#E8D4CF]" />
+                      <PackageCheck size={16} className="text-white" />
                     ) : (
-                      <Clock3 size={16} className="text-[#C8BFBA]" />
+                      <Clock3 size={16} className="text-[#8A7380]" />
                     )}
-                    <span className="capitalize font-medium">{step.replaceAll('_', ' ')}</span>
+                    <span className="capitalize">{step.replaceAll('_', ' ')}</span>
                   </div>
                 )
               })}
@@ -176,13 +176,13 @@ export default function Track() {
           </div>
 
           {/* Footer Card */}
-          <div className="pt-4 border-t border-[#F2ECE5] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-            <span className="text-[#7A726D]">
-              Payment Status: <b className="capitalize text-[#1E1917]">{order.payment_status}</b>
+          <div className="pt-4 border-t border-[#FAD1E0]/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+            <span className="text-[#8A7380]">
+              Payment Status: <b className="capitalize text-[#2A1E24]">{order.payment_status}</b>
             </span>
             <Link
               href={`/account/orders/${order.order_number}`}
-              className="inline-flex items-center gap-1 font-semibold text-[#933D32] hover:underline"
+              className="inline-flex items-center gap-1 font-bold text-[#E60067] hover:underline"
             >
               <span>View complete order receipt</span>
               <ArrowRight size={13} />
