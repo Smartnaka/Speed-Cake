@@ -12,7 +12,7 @@ export interface BaseLayoutOptions {
 
 export function renderEmailLayout(options: BaseLayoutOptions): string {
   const siteUrl = getSiteBaseUrl()
-  const storeName = options.storeName || 'Speed Cake'
+  const storeName = options.storeName || 'Instant Cakes Delivery'
   const supportEmail = options.supportEmail || 'orders@speedcake.com'
   const storeAddress = options.storeAddress || '14 Admiralty Way, Lekki Phase 1, Lagos, Nigeria'
 
@@ -66,8 +66,8 @@ export function renderEmailLayout(options: BaseLayoutOptions): string {
           <tr>
             <td align="center" style="padding: 36px 32px 24px 32px; border-bottom: 1px solid #f2e8e2; background-color: #fdfbf9;">
               <a href="${siteUrl}" target="_blank" style="text-decoration: none;">
-                <span style="font-family: Georgia, 'Playfair Display', serif; font-size: 32px; font-weight: normal; letter-spacing: -0.5px; color: #6f3d36;">
-                  speed cake<span style="color: #c28d79;">.</span>
+                <span style="font-family: Georgia, 'Playfair Display', serif; font-size: 28px; font-weight: normal; letter-spacing: -0.5px; color: #6f3d36;">
+                  Instant Cakes Delivery<span style="color: #c28d79;">.</span>
                 </span>
               </a>
             </td>

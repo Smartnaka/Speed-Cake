@@ -128,7 +128,7 @@ test('evaluateAdminStatus strictly enforces database role === "admin"', () => {
   // 4. Admin profile -> 200 OK
   const admin = evaluateAdminStatus(
     { id: 'u2', email: 'admin-tester@example.com' },
-    { id: 'u2', role: 'admin', full_name: 'Speed Cake Manager' }
+    { id: 'u2', role: 'admin', full_name: 'Instant Cakes Delivery Manager' }
   )
   assert.equal(admin.ok, true)
   if (admin.ok) {

@@ -62,7 +62,7 @@ export default function AdminSettingsPage() {
   if (loading) return <div className="py-24 text-center"><Loader2 size={32} className="animate-spin mx-auto text-[#6f3d36] mb-3" /><p className="text-sm text-[#756862]">Loading store settings…</p></div>
 
   return <div className="max-w-3xl space-y-7 pb-12">
-    <div className="pb-5 border-b border-[#ded0c8]"><div className="eyebrow text-[#8a5b51]">Operations</div><h1 className="serif text-4xl text-[#352c28] mt-1">Store Settings</h1><p className="text-sm text-[#756862] mt-2">Manage the contact information used to operate Speed Cake.</p></div>
+    <div className="pb-5 border-b border-[#ded0c8]"><div className="eyebrow text-[#8a5b51]">Operations</div><h1 className="serif text-4xl text-[#352c28] mt-1">Store Settings</h1><p className="text-sm text-[#756862] mt-2">Manage the contact information used to operate Instant Cakes Delivery.</p></div>
     {error && <div role="alert" className="p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded text-sm flex gap-2"><AlertCircle size={16} className="shrink-0" />{error}</div>}
     {success && <div role="status" className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded text-sm flex gap-2"><CheckCircle2 size={16} className="shrink-0" />{success}</div>}
     <form onSubmit={save} className="space-y-6">

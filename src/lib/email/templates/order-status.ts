@@ -43,7 +43,7 @@ const statusMeta: Record<string, { label: string; badgeColor: string; badgeBg: s
     badgeColor: '#1e5437',
     badgeBg: '#eaf5ee',
     headline: 'Your cake has arrived!',
-    message: 'Your order has been delivered. We hope it brings delight and sweetness to your celebration. Thank you for choosing Speed Cake!',
+    message: 'Your order has been delivered. We hope it brings delight and sweetness to your celebration. Thank you for choosing Instant Cakes Delivery!',
   },
   cancelled: {
     label: 'Cancelled',
@@ -136,7 +136,7 @@ export function renderOrderStatusEmailHtml(data: OrderStatusEmailData): string {
   `
 
   return renderEmailLayout({
-    title: `Order Update: ${order.order_number} is ${meta.label} — Speed Cake`,
+    title: `Order Update: ${order.order_number} is ${meta.label} — Instant Cakes Delivery`,
     previewText: `Order ${order.order_number} update: ${meta.label}. ${meta.message}`,
     bodyHtml,
   })

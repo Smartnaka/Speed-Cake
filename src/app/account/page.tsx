@@ -171,7 +171,7 @@ function AccountContent(){
     <main className="container py-10 md:py-14 min-h-[60vh]">
       <div className="max-w-md mx-auto bg-white rounded-3xl border border-[#FAD1E0] p-8 sm:p-10 shadow-card">
         <div className="text-center space-y-2 mb-6">
-          <div className="eyebrow">Your Speed Cake</div>
+          <div className="eyebrow">Your Instant Cakes Delivery</div>
           <h1 className="text-3xl sm:text-4xl text-[#2A1E24] font-extrabold">
             {mode==='login'?'Welcome back':mode==='signup'?'Create an account':mode==='reset'?'Reset password':'Choose a new password'}
           </h1>
@@ -179,7 +179,7 @@ function AccountContent(){
             {isOrderFlow
               ? 'Create an account or sign in to continue with your cake order.'
               : mode==='signup'
-              ? 'Join Speed Cake to save your cake bag and track delivery.'
+              ? 'Join Instant Cakes Delivery to save your cake bag and track delivery.'
               : mode==='login'
               ? 'Sign in to review orders and live kitchen milestones.'
               : 'We’ll email you a secure link to reset your account password.'}

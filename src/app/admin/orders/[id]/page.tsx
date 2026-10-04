@@ -246,7 +246,7 @@ export default function AdminOrderDetailPage({ params }: { params: { id: string 
 
                       <div className="space-y-1">
                         <div className="font-serif font-medium text-base text-[#352c28]">
-                          {item.product_snapshot?.name || 'Speed Cake Signature'}
+                          {item.product_snapshot?.name || 'Instant Cakes Delivery Signature'}
                         </div>
                         <div className="text-xs text-[#756862]">
                           Variant / Size: <b className="text-[#352c28]">{item.variant_snapshot?.name || 'Standard'}</b>

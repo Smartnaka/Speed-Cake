@@ -41,7 +41,7 @@ export async function sendWelcomeEmail(params: {
     const { data, error } = await resend.emails.send({
       from: getEmailFromAddress(),
       to: [params.to],
-      subject: `Welcome to Speed Cake, ${params.name}!`,
+      subject: `Welcome to Instant Cakes Delivery, ${params.name}!`,
       html,
       text,
     })
@@ -103,7 +103,7 @@ export async function sendOrderConfirmationEmail(
     const { data, error } = await resend.emails.send({
       from: getEmailFromAddress(),
       to: [order.customer_email],
-      subject: `Order Confirmed: ${order.order_number} — Speed Cake`,
+      subject: `Order Confirmed: ${order.order_number} — Instant Cakes Delivery`,
       html,
       text,
     })
@@ -207,7 +207,7 @@ export async function sendOrderStatusUpdateEmail(params: {
     const { data, error } = await resend.emails.send({
       from: getEmailFromAddress(),
       to: [order.customer_email],
-      subject: `Order Update: ${order.order_number} is ${statusLabel} — Speed Cake`,
+      subject: `Order Update: ${order.order_number} is ${statusLabel} — Instant Cakes Delivery`,
       html,
       text,
     })

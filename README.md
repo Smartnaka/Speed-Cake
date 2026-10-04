@@ -1,6 +1,6 @@
-# Speed Cake
+# Instant Cakes Delivery
 
-Next.js App Router cake-ordering storefront. The design takes general e-commerce cues from the reference (occasion-led categories, featured cakes, configurable variants and a short cart-to-payment path) while using original Speed Cake branding and copy.
+Next.js App Router cake-ordering storefront. The design takes general e-commerce cues from the reference (occasion-led categories, featured cakes, configurable variants and a short cart-to-payment path) while using original Instant Cakes Delivery branding and copy.
 
 ## Implementation checklist
 

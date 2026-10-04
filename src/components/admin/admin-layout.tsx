@@ -84,7 +84,7 @@ export function AdminShell({adminUser, onLogout, children}: AdminShellProps) {
       <header className="md:hidden bg-white border-b border-[#ded0c8] px-4 py-3 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-2">
           <Link href="/admin" className="serif text-xl tracking-tight text-[#6f3d36]">
-            speed cake<span className="text-[#c28d79]">.</span>
+            Instant Cakes Delivery<span className="text-[#c28d79]">.</span>
           </Link>
           <span className="text-[9px] uppercase px-1.5 py-0.5 bg-[#f3e5df] text-[#6f3d36] font-semibold tracking-wider">
             Admin
@@ -109,7 +109,7 @@ export function AdminShell({adminUser, onLogout, children}: AdminShellProps) {
             <div>
               <div className="flex items-center justify-between pb-4 border-b border-[#eee3db]">
                 <div>
-                  <div className="serif text-xl text-[#6f3d36]">speed cake.</div>
+                  <div className="serif text-xl text-[#6f3d36]">Instant Cakes Delivery.</div>
                   <div className="text-[10px] uppercase tracking-widest text-[#867872]">Operations</div>
                 </div>
                 <button onClick={() => setMobileOpen(false)} aria-label="Close menu">
@@ -181,7 +181,7 @@ export function AdminShell({adminUser, onLogout, children}: AdminShellProps) {
           {/* Brand */}
           <div className="pb-6 border-b border-[#eee3db]">
             <Link href="/admin" className="serif text-2xl tracking-tight text-[#6f3d36] block">
-              speed cake<span className="text-[#c28d79]">.</span>
+              Instant Cakes Delivery<span className="text-[#c28d79]">.</span>
             </Link>
             <div className="flex items-center justify-between mt-2">
               <span className="text-[10px] uppercase tracking-[0.18em] font-semibold text-[#8a5b51]">
@@ -270,7 +270,7 @@ export function AdminShell({adminUser, onLogout, children}: AdminShellProps) {
         {/* Top bar */}
         <div className="bg-white border-b border-[#ded0c8] px-6 py-3.5 hidden md:flex items-center justify-between text-xs text-[#756862]">
           <div className="flex items-center gap-2">
-            <span className="text-[#867872]">Speed Cake Operations</span>
+            <span className="text-[#867872]">Instant Cakes Delivery Operations</span>
             <span>/</span>
             <span className="font-medium text-[#352c28]">Admin Foundation</span>
           </div>

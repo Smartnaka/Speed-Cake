@@ -213,7 +213,7 @@ export default function AdminCategoriesPage() {
           <div className="eyebrow text-[#8a5b51]">Catalogue Structure</div>
           <h1 className="serif text-4xl text-[#352c28] mt-1.5">Categories</h1>
           <p className="text-xs text-[#756862] mt-1.5 leading-relaxed">
-            Manage cake categories, slugs, and navigation ordering for the Speed Cake storefront.
+            Manage cake categories, slugs, and navigation ordering for the Instant Cakes Delivery storefront.
           </p>
         </div>
         <button

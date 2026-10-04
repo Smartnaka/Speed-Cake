@@ -124,7 +124,7 @@ export default function AdminDashboardPage() {
           <div className="eyebrow text-[#8a5b51]">Operations Overview</div>
           <h1 className="serif text-4xl text-[#352c28] mt-1.5">Admin Dashboard</h1>
           <p className="text-xs text-[#756862] mt-2 max-w-xl leading-relaxed">
-            Welcome to the Speed Cake management console. Monitor live orders, revenue, customer accounts, and bakery workflow.
+            Welcome to the Instant Cakes Delivery management console. Monitor live orders, revenue, customer accounts, and bakery workflow.
           </p>
         </div>
         <div className="flex items-center gap-2 self-start md:self-auto">

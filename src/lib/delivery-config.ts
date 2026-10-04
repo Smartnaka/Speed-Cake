@@ -8,7 +8,7 @@ export const DELIVERY_TIME_WINDOWS = [
 export type DeliveryTimeWindow = (typeof DELIVERY_TIME_WINDOWS)[number]
 
 export const SPEEDCAKE_PICKUP_LOCATION = {
-  name: 'Speed Cake Main Bakery',
+  name: 'Instant Cakes Delivery Main Bakery',
   address: '14 Admiralty Way, Lekki Phase 1',
   city: 'Lekki',
   state: 'Lagos',

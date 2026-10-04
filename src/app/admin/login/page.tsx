@@ -97,7 +97,7 @@ function AdminLoginContent() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="serif text-3xl tracking-tight text-[#6f3d36] inline-block">
-            speed cake<span className="text-[#c28d79]">.</span>
+            Instant Cakes Delivery<span className="text-[#c28d79]">.</span>
           </Link>
           <div className="mt-2 text-[11px] uppercase tracking-[0.2em] font-semibold text-[#8a5b51]">
             Staff & Operations Admin
@@ -171,7 +171,7 @@ function AdminLoginContent() {
 
         <p className="text-center text-xs text-[#756862] mt-8">
           <Link href="/" className="hover:underline text-[#6f3d36]">
-            ← Return to Speed Cake store
+            ← Return to Instant Cakes Delivery store
           </Link>
         </p>
       </div>

@@ -7,15 +7,15 @@ import { Sparkles, ArrowUpRight, Cake } from 'lucide-react'
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: {
-    default: 'Speed Cake — Natural and Healthy Freshly Baked Cakes',
-    template: '%s | Speed Cake',
+    default: 'Instant Cakes Delivery — Natural and Healthy Freshly Baked Cakes',
+    template: '%s | Instant Cakes Delivery',
   },
   description:
     'Artisanal bespoke cakes made to order in Lagos. Customized with care for your sweetest celebrations.',
   openGraph: {
     type: 'website',
-    siteName: 'Speed Cake',
-    title: 'Speed Cake — Natural and Healthy Freshly Baked Cakes',
+    siteName: 'Instant Cakes Delivery',
+    title: 'Instant Cakes Delivery — Natural and Healthy Freshly Baked Cakes',
     description:
       'Artisanal bespoke cakes made to order in Lagos. Customized with care for your sweetest celebrations.',
   },
@@ -47,7 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <Cake size={20} strokeWidth={2.2} />
                 </div>
                 <span className="font-extrabold text-2xl tracking-tight text-white">
-                  Speed Cake<span className="text-[#E60067]">.</span>
+                  Instant Cakes Delivery<span className="text-[#E60067]">.</span>
                 </span>
               </Link>
               <p className="text-[#D0B8C4] text-sm leading-relaxed max-w-sm">
@@ -141,7 +141,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {/* Bottom Bar */}
           <div className="border-t border-[#3D2533]">
             <div className="container py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#A8909D]">
-              <span>&copy; {new Date().getFullYear()} Speed Cake. Handcrafted with love in Lagos.</span>
+              <span>&copy; {new Date().getFullYear()} Instant Cakes Delivery. Handcrafted with love in Lagos.</span>
               <div className="flex gap-6 font-medium">
                 <Link href="/cakes" className="hover:text-white transition-colors">Privacy</Link>
                 <Link href="/cakes" className="hover:text-white transition-colors">Terms of Order</Link>

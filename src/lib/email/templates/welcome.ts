@@ -16,7 +16,7 @@ export function renderWelcomeEmailHtml(data: WelcomeEmailData): string {
         Welcome to our bakery
       </span>
       <h1 style="font-family: Georgia, 'Playfair Display', serif; font-size: 30px; font-weight: normal; color: #352c28; margin: 0 0 12px 0; line-height: 1.25;">
-        Welcome to Speed Cake, ${name}
+        Welcome to Instant Cakes Delivery, ${name}
       </h1>
       <p style="font-size: 15px; color: #756862; margin: 0 auto; max-width: 460px; line-height: 1.6;">
         We’re delighted to have you join our celebration family. Every cake we bake is crafted from scratch with premium ingredients and hand-piped with care.
@@ -26,7 +26,7 @@ export function renderWelcomeEmailHtml(data: WelcomeEmailData): string {
     <!-- Feature box -->
     <div style="background-color: #fbf7f4; border: 1px solid #ebdcd3; border-radius: 4px; padding: 24px; margin-bottom: 32px;">
       <h2 style="font-family: Georgia, serif; font-size: 18px; color: #6f3d36; margin: 0 0 12px 0;">
-        How Speed Cake works:
+        How Instant Cakes Delivery works:
       </h2>
       <ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #52443e; line-height: 1.8;">
         <li><b>Explore handpicked recipes</b>: From Velvet Afterglow to Golden Hour Citrus.</li>
@@ -49,15 +49,15 @@ export function renderWelcomeEmailHtml(data: WelcomeEmailData): string {
   `
 
   return renderEmailLayout({
-    title: `Welcome to Speed Cake, ${data.customerName}!`,
-    previewText: `Welcome to Speed Cake! Freshly baked bespoke celebration cakes made with care.`,
+    title: `Welcome to Instant Cakes Delivery, ${data.customerName}!`,
+    previewText: `Welcome to Instant Cakes Delivery! Freshly baked bespoke celebration cakes made with care.`,
     bodyHtml,
   })
 }
 
 export function renderWelcomeEmailText(data: WelcomeEmailData): string {
   const siteUrl = getSiteBaseUrl()
-  return `Welcome to Speed Cake, ${data.customerName || 'there'}!
+  return `Welcome to Instant Cakes Delivery, ${data.customerName || 'there'}!
 
 We're delighted to have you join us. Every cake we bake is crafted from scratch with premium ingredients and hand-piped with care for your special moments.
 

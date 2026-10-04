@@ -105,7 +105,7 @@ export default function AdminOrdersPage() {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-[#e5d9d1]">
         <div>
-          <span className="text-xs uppercase tracking-wider text-[#867872] font-semibold">Speed Cake Operations</span>
+          <span className="text-xs uppercase tracking-wider text-[#867872] font-semibold">Instant Cakes Delivery Operations</span>
           <h1 className="text-3xl font-serif text-[#352c28] mt-0.5">Orders Management</h1>
           <p className="text-sm text-[#756862] mt-1">
             Track customer cake orders, monitor payment statuses, and advance fulfillment.

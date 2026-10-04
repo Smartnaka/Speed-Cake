@@ -14,11 +14,19 @@ export function getResendClient(): Resend | null {
 }
 
 export function getEmailFromAddress(): string {
-  return process.env.RESEND_FROM_EMAIL?.trim() || 'Speed Cake <orders@speedcake.com>'
+  const fromName = process.env.RESEND_FROM_NAME?.trim() || 'Instant Cakes Delivery'
+  const rawEmail = process.env.RESEND_FROM_EMAIL?.trim() || 'orders@speedcake.com'
+  const emailMatch = rawEmail.match(/<([^>]+)>/)
+  const emailOnly = emailMatch ? emailMatch[1] : rawEmail
+  return `${fromName} <${emailOnly}>`
 }
 
 export function getStoreNotificationEmail(): string {
-  return process.env.STORE_NOTIFICATION_EMAIL?.trim() || 'orders@speedcake.com'
+  return (
+    process.env.ADMIN_ORDER_EMAIL?.trim() ||
+    process.env.STORE_NOTIFICATION_EMAIL?.trim() ||
+    'orders@speedcake.com'
+  )
 }
 
 export function getSiteBaseUrl(): string {

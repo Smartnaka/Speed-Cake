@@ -65,7 +65,7 @@ export function StoreHeader() {
             <Cake size={20} strokeWidth={2.2} />
           </div>
           <span className="font-extrabold text-2xl tracking-tight text-[#2A1E24] group-hover:text-[#E60067] transition-colors">
-            Speed Cake<span className="text-[#E60067]">.</span>
+            Instant Cakes Delivery<span className="text-[#E60067]">.</span>
           </span>
         </Link>
 

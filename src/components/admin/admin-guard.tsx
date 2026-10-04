@@ -141,7 +141,7 @@ export function AdminGuard({children}: AdminGuardProps) {
             Administrator Privileges Required
           </p>
           <p className="text-xs text-[#756862] mt-4 leading-relaxed">
-            The account <b>{userEmail || 'currently signed in'}</b> does not have permissions to access the Speed Cake administration area.
+            The account <b>{userEmail || 'currently signed in'}</b> does not have permissions to access the Instant Cakes Delivery administration area.
           </p>
           <div className="mt-8 space-y-3">
             <button
@@ -156,7 +156,7 @@ export function AdminGuard({children}: AdminGuardProps) {
               className="w-full border border-[#ded0c8] hover:bg-[#faf7f4] text-[#403835] py-3 text-xs font-medium transition flex items-center justify-center gap-2"
             >
               <Store size={14} />
-              <span>Return to Speed Cake store</span>
+              <span>Return to Instant Cakes Delivery store</span>
             </Link>
           </div>
         </div>

@@ -148,7 +148,7 @@ export function renderOrderConfirmationHtml(order: AdminOrderRecord): string {
   `
 
   return renderEmailLayout({
-    title: `Order Confirmed: ${order.order_number} — Speed Cake`,
+    title: `Order Confirmed: ${order.order_number} — Instant Cakes Delivery`,
     previewText: `Payment confirmed for order ${order.order_number}. Total: ${naira(order.total_kobo)}.`,
     bodyHtml,
   })

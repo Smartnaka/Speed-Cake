@@ -5,7 +5,7 @@ import { storeSettingsSchema } from '../src/lib/schemas.ts'
 
 const read = path => fs.readFile(new URL(`../${path}`, import.meta.url), 'utf8')
 const valid = {
-  store_name: 'Speed Cake', store_email: 'store@speedcake.test', store_phone: '+234 800 123 4567',
+  store_name: 'Instant Cakes Delivery', store_email: 'store@speedcake.test', store_phone: '+234 800 123 4567',
   store_address: '14 Bakery Lane', city: 'Lagos', state: 'Lagos', country: 'Nigeria',
   support_email: 'help@speedcake.test', support_phone: '+234 800 765 4321',
 }

@@ -213,7 +213,7 @@ export default async function Home() {
       {/* 5. Bakery Promise Banner */}
       <section className="container text-center py-6">
         <div className="max-w-2xl mx-auto space-y-6 bg-white border border-[#FAD1E0] rounded-[2.5rem] p-10 md:p-14 shadow-card">
-          <div className="eyebrow">The Speed Cake Promise</div>
+          <div className="eyebrow">The Instant Cakes Delivery Promise</div>
           <h2 className="text-3xl md:text-4xl text-[#2A1E24] font-extrabold leading-tight">
             Happiness in every slice.
           </h2>

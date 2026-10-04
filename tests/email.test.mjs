@@ -87,12 +87,12 @@ test('escapeHtml sanitizes unsafe characters against XSS', () => {
 // ---------------------------------------------------------------------------
 test('renderWelcomeEmail produces personalized greeting and cake collection link', () => {
   const html = renderWelcomeEmailHtml({ customerName: 'Chiamaka & Tunde', customerEmail: 'tunde@example.com' })
-  assert.ok(html.includes('Welcome to Speed Cake, Chiamaka &amp; Tunde'))
+  assert.ok(html.includes('Welcome to Instant Cakes Delivery, Chiamaka &amp; Tunde'))
   assert.ok(html.includes('/cakes'))
-  assert.ok(html.includes('speed cake'))
+  assert.ok(html.includes('Instant Cakes Delivery'))
 
   const text = renderWelcomeEmailText({ customerName: 'Chiamaka', customerEmail: 'chiamaka@example.com' })
-  assert.ok(text.includes('Welcome to Speed Cake, Chiamaka'))
+  assert.ok(text.includes('Welcome to Instant Cakes Delivery, Chiamaka'))
   assert.ok(text.includes('/cakes'))
 })
 
@@ -132,7 +132,7 @@ test('renderOrderConfirmationHtml formats bakery pickup receipt with location de
 
   assert.ok(html.includes('SC-PICKUP999'))
   assert.ok(html.includes('Fulfillment: Bakery Pickup (Free)'))
-  assert.ok(html.includes('Speed Cake Main Bakery'))
+  assert.ok(html.includes('Instant Cakes Delivery Main Bakery'))
   assert.ok(html.includes('14 Admiralty Way, Lekki Phase 1'))
   assert.ok(html.includes('₦0 (Free)'))
 })
