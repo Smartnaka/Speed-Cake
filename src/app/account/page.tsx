@@ -97,36 +97,67 @@ function AccountContent(){
 
   if(session){
     if(safeNext!=='/account'){
-      return <main className="container py-20 min-h-[50vh] text-center"><p className="text-sm text-[#756862]">Redirecting to your order…</p></main>;
+      return <main className="container py-24 min-h-[50vh] text-center"><p className="text-sm text-[#7A726D]">Redirecting to your order…</p></main>;
     }
     return (
-      <main className="container py-14 min-h-[55vh]">
-        <div className="flex flex-wrap justify-between gap-4 items-end">
+      <main className="container py-12 md:py-16 min-h-[55vh] space-y-10">
+        <div className="bg-white rounded-3xl border border-[#EAE3DC] p-6 sm:p-10 shadow-card flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
           <div>
-            <div className="eyebrow">Your Speed Cake</div>
-            <h1 className="serif text-5xl mt-2">Your account</h1>
-            <p className="text-sm text-[#756862] mt-2">{session.user.email}</p>
+            <div className="eyebrow">Client Portal</div>
+            <h1 className="serif text-4xl md:text-5xl text-[#1E1917] font-normal mt-1">Your Account</h1>
+            <p className="text-sm text-[#7A726D] mt-1">{session.user.email}</p>
           </div>
-          <button onClick={logout} className="border border-[#6f3d36] px-5 py-3 text-sm">Sign out</button>
+          <button
+            onClick={logout}
+            className="px-5 py-2.5 rounded-full border border-[#DFD7CF] bg-white hover:border-[#1E1917] text-xs font-semibold text-[#1E1917] transition shadow-subtle"
+          >
+            Sign out
+          </button>
         </div>
-        <section className="mt-10">
-          <h2 className="serif text-3xl">Your orders</h2>
+
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="serif text-2xl md:text-3xl text-[#1E1917]">Your Past Orders</h2>
+            <Link href="/cakes" className="text-xs font-semibold text-[#933D32] hover:underline">
+              Browse More Cakes &rarr;
+            </Link>
+          </div>
+
           {orders.length===0?(
-            <div className="border border-[#e5d9d1] p-8 mt-5 text-sm text-[#756862]">
-              No orders yet. <Link className="underline text-[#6f3d36]" href="/cakes">Browse cakes</Link>
+            <div className="bg-white rounded-2xl border border-[#EAE3DC] p-10 text-center space-y-3 shadow-subtle">
+              <p className="text-sm text-[#7A726D]">You haven’t placed any celebration orders yet.</p>
+              <Link className="inline-block px-5 py-2.5 rounded-full bg-[#1E1917] text-white text-xs font-semibold shadow-sm hover:bg-[#332C29] transition" href="/cakes">
+                Browse Cake Menu
+              </Link>
             </div>
           ):(
-            <div className="grid gap-3 mt-5">
+            <div className="grid gap-3">
               {orders.map(o=>(
-                <Link href={`/account/orders/${o.order_number}`} key={o.id} className="border border-[#e5d9d1] p-5 flex flex-wrap justify-between gap-4">
-                  <span>
-                    <b>{o.order_number}</b>
-                    <small className="block mt-2 text-[#756862]">{(o.order_items||[]).map((i:any)=>`${i.quantity} × ${i.product_snapshot?.name||'Cake'}`).join(', ')}</small>
-                  </span>
-                  <span className="text-right text-sm">
-                    {naira(o.total_kobo)}
-                    <small className="block mt-2 capitalize">{o.status.replaceAll('_',' ')} · {o.payment_status}</small>
-                  </span>
+                <Link
+                  href={`/account/orders/${o.order_number}`}
+                  key={o.id}
+                  className="bg-white rounded-2xl border border-[#EAE3DC] hover:border-[#DFD7CF] p-5 sm:p-6 flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition shadow-subtle hover:shadow-card"
+                >
+                  <div className="space-y-1">
+                    <div className="font-semibold text-base text-[#1E1917] flex items-center gap-2">
+                      <span>{o.order_number}</span>
+                      <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#FAF8F5] border border-[#EAE3DC] text-[#7A726D] font-normal capitalize">
+                        {o.status.replaceAll('_',' ')}
+                      </span>
+                    </div>
+                    <div className="text-xs text-[#7A726D]">
+                      {(o.order_items||[]).map((i:any)=>`${i.quantity} × ${i.product_snapshot?.name||'Cake'}`).join(', ')}
+                    </div>
+                  </div>
+
+                  <div className="sm:text-right">
+                    <div className="font-bold text-base text-[#1E1917]">
+                      {naira(o.total_kobo)}
+                    </div>
+                    <div className="text-[11px] text-[#7A726D] capitalize mt-0.5">
+                      Payment: <b className="text-[#1E1917]">{o.payment_status}</b>
+                    </div>
+                  </div>
                 </Link>
               ))}
             </div>
@@ -137,74 +168,146 @@ function AccountContent(){
   }
 
   return (
-    <main className="container py-16 min-h-[55vh]">
-      <div className="max-w-md mx-auto">
-        <div className="eyebrow">Your Speed Cake</div>
-        <h1 className="serif text-5xl mt-3">
-          {mode==='login'?'Welcome back':mode==='signup'?'Create an account':mode==='reset'?'Reset password':'Choose a new password'}
-        </h1>
-        <p className="text-sm text-[#756862] mt-3">
-          {isOrderFlow
-            ? 'Create an account or log in to continue with your order.'
-            : mode==='signup'
-            ? 'Create your account to continue with your cake order.'
-            : mode==='login'
-            ? 'Sign in to continue your order and see updates.'
-            : 'We’ll help you get back into your account.'}
-        </p>
+    <main className="container py-12 md:py-16 min-h-[55vh]">
+      <div className="max-w-md mx-auto bg-white rounded-3xl border border-[#EAE3DC] p-8 sm:p-10 shadow-card">
+        <div className="text-center space-y-2 mb-6">
+          <div className="eyebrow">Your Speed Cake</div>
+          <h1 className="serif text-3xl sm:text-4xl text-[#1E1917] font-normal">
+            {mode==='login'?'Welcome back':mode==='signup'?'Create an account':mode==='reset'?'Reset password':'Choose a new password'}
+          </h1>
+          <p className="text-xs text-[#7A726D] leading-relaxed">
+            {isOrderFlow
+              ? 'Create an account or sign in to continue with your cake order.'
+              : mode==='signup'
+              ? 'Join Speed Cake to save your cake bag and track delivery.'
+              : mode==='login'
+              ? 'Sign in to review orders and live kitchen milestones.'
+              : 'We’ll email you a secure link to reset your account password.'}
+          </p>
+        </div>
+
         {isOrderFlow&&(
-          <div className="mt-6 p-4 bg-[#f8ede6] border border-[#e5d2c7] text-sm text-[#5a342e]">
-            <p className="font-semibold">Create an account or log in to continue with your order.</p>
-            <p className="text-xs text-[#756862] mt-1">Your cake configuration is safely saved and ready for checkout.</p>
+          <div className="mb-6 p-4 bg-[#F8ECE9] rounded-xl border border-[#E8D4CF] text-xs text-[#933D32]">
+            <p className="font-semibold">Your cake configuration is safely saved.</p>
+            <p className="text-[11px] text-[#7A726D] mt-0.5">Sign in or create an account to proceed directly to checkout.</p>
           </div>
         )}
+
         {mode!=='reset'&&mode!=='new-password'&&(
-          <div className="flex border-b border-[#ded0c8] mt-6 mb-4">
+          <div className="bg-[#FAF8F5] p-1 rounded-full border border-[#EAE3DC] flex mb-6">
             <button
               type="button"
               onClick={()=>{setMessage('');setMode('login')}}
-              className={`pb-3 text-sm flex-1 font-medium transition ${mode==='login'?'border-b-2 border-[#6f3d36] text-[#6f3d36]':'text-[#867872]'}`}
+              className={`py-2 text-xs flex-1 rounded-full font-semibold transition ${
+                mode==='login'?'bg-white text-[#1E1917] shadow-sm':'text-[#7A726D] hover:text-[#1E1917]'
+              }`}
             >
               Sign in
             </button>
             <button
               type="button"
               onClick={()=>{setMessage('');setMode('signup')}}
-              className={`pb-3 text-sm flex-1 font-medium transition ${mode==='signup'?'border-b-2 border-[#6f3d36] text-[#6f3d36]':'text-[#867872]'}`}
+              className={`py-2 text-xs flex-1 rounded-full font-semibold transition ${
+                mode==='signup'?'bg-white text-[#1E1917] shadow-sm':'text-[#7A726D] hover:text-[#1E1917]'
+              }`}
             >
               Create account
             </button>
           </div>
         )}
-        <form className="grid gap-4 mt-6" onSubmit={submit}>
+
+        <form className="space-y-4" onSubmit={submit}>
           {mode==='signup'&&(
-            <input required value={name} onChange={e=>setName(e.target.value)} placeholder="Your name" autoComplete="name" className="border border-[#ded0c8] bg-transparent p-3 text-sm"/>
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-[#1E1917] mb-1 font-semibold">
+                Your Full Name
+              </label>
+              <input
+                required
+                value={name}
+                onChange={e=>setName(e.target.value)}
+                placeholder="e.g. Chimamanda Adichie"
+                autoComplete="name"
+                className="w-full px-4 py-3 rounded-xl border border-[#EAE3DC] bg-[#FAF8F5] text-sm text-[#1E1917] placeholder:text-[#9C938E] outline-none focus:border-[#1E1917] focus:bg-white focus:ring-1 focus:ring-[#1E1917] transition shadow-subtle"
+              />
+            </div>
           )}
+
           {mode!=='new-password'&&(
-            <input required type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Email address" autoComplete="email" className="border border-[#ded0c8] bg-transparent p-3 text-sm"/>
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-[#1E1917] mb-1 font-semibold">
+                Email Address
+              </label>
+              <input
+                required
+                type="email"
+                value={email}
+                onChange={e=>setEmail(e.target.value)}
+                placeholder="e.g. name@example.com"
+                autoComplete="email"
+                className="w-full px-4 py-3 rounded-xl border border-[#EAE3DC] bg-[#FAF8F5] text-sm text-[#1E1917] placeholder:text-[#9C938E] outline-none focus:border-[#1E1917] focus:bg-white focus:ring-1 focus:ring-[#1E1917] transition shadow-subtle"
+              />
+            </div>
           )}
+
           {mode!=='reset'&&(
-            <input required minLength={8} type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder={mode==='new-password'?'New password (8+ characters)':'Password (8+ characters)'} autoComplete={mode==='login'?'current-password':'new-password'} className="border border-[#ded0c8] bg-transparent p-3 text-sm"/>
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-[#1E1917] mb-1 font-semibold">
+                Password
+              </label>
+              <input
+                required
+                minLength={8}
+                type="password"
+                value={password}
+                onChange={e=>setPassword(e.target.value)}
+                placeholder={mode==='new-password'?'New password (8+ characters)':'Password (8+ characters)'}
+                autoComplete={mode==='login'?'current-password':'new-password'}
+                className="w-full px-4 py-3 rounded-xl border border-[#EAE3DC] bg-[#FAF8F5] text-sm text-[#1E1917] placeholder:text-[#9C938E] outline-none focus:border-[#1E1917] focus:bg-white focus:ring-1 focus:ring-[#1E1917] transition shadow-subtle"
+              />
+            </div>
           )}
-          <button disabled={busy} className="bg-[#6f3d36] py-4 text-sm text-white disabled:opacity-60">
+
+          <button
+            disabled={busy}
+            className="w-full py-3.5 px-6 rounded-full bg-[#1E1917] hover:bg-[#332C29] text-white text-xs font-semibold transition-all shadow-card hover:shadow-card-hover disabled:opacity-60 cursor-pointer"
+          >
             {busy?'Please wait…':mode==='login'?'Sign in':mode==='signup'?'Create account':mode==='reset'?'Send reset link':'Save new password'}
           </button>
         </form>
-        {message&&<p role="status" className="text-sm mt-4 text-[#8b3d33]">{message}</p>}
-        <div className="flex justify-between text-xs mt-5 underline">
+
+        {message&&(
+          <div role="status" className="mt-4 p-3.5 rounded-xl bg-[#F8ECE9] border border-[#E8D4CF] text-xs text-[#933D32]">
+            {message}
+          </div>
+        )}
+
+        <div className="flex justify-between text-xs mt-6 text-[#7A726D]">
           {mode!=='new-password'&&(
-            <button type="button" onClick={()=>{setMessage('');setMode(mode==='login'?'signup':'login')}}>
-              {mode==='login'?'Need an account? Create one':'Already have an account? Sign in'}
+            <button
+              type="button"
+              className="hover:text-[#1E1917] underline"
+              onClick={()=>{setMessage('');setMode(mode==='login'?'signup':'login')}}
+            >
+              {mode==='login'?'Need an account? Sign up':'Already have an account? Sign in'}
             </button>
           )}
+
           {mode!=='new-password'&&(
-            <button type="button" onClick={()=>{setMessage('');setMode('reset')}}>
+            <button
+              type="button"
+              className="hover:text-[#1E1917] underline"
+              onClick={()=>{setMessage('');setMode('reset')}}
+            >
               Forgot password?
             </button>
           )}
         </div>
-        <p className="text-center text-xs text-[#756862] mt-8">
-          <Link className="underline" href="/cakes">Continue browsing cakes</Link>
+
+        <p className="text-center text-xs text-[#7A726D] mt-8 pt-4 border-t border-[#F2ECE5]">
+          <Link className="hover:text-[#1E1917] underline" href="/cakes">
+            Continue browsing celebration cakes &rarr;
+          </Link>
         </p>
       </div>
     </main>

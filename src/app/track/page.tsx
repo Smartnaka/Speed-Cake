@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { PackageCheck, Clock3, Truck, Store, MapPin, Calendar } from 'lucide-react'
+import { PackageCheck, Clock3, Truck, Store, MapPin, Calendar, Search, ArrowRight } from 'lucide-react'
 import { supabaseBrowser } from '@/lib/supabase/browser'
 import { SPEEDCAKE_PICKUP_LOCATION } from '@/lib/delivery-config'
 
@@ -58,75 +58,83 @@ export default function Track() {
     (order.fulfillment_type === 'pickup' || order.delivery_window === 'Store Pickup')
 
   return (
-    <main className="container py-16 min-h-[50vh]">
-      <div className="eyebrow">A little peace of mind</div>
-      <h1 className="serif text-4xl md:text-5xl mt-3 text-[#352c28]">Track your order</h1>
-      <p className="text-sm text-[#756862] mt-3">
-        Enter your order reference number to view the preparation and fulfillment status.
-      </p>
+    <main className="container py-12 md:py-16 min-h-[55vh] space-y-8">
+      <div className="max-w-xl space-y-2">
+        <div className="eyebrow">Real-Time Kitchen Updates</div>
+        <h1 className="serif text-4xl md:text-5xl text-[#1E1917] font-normal tracking-tight">
+          Track Your Order
+        </h1>
+        <p className="text-sm text-[#7A726D] leading-relaxed">
+          Enter your order reference code (e.g. SC-...) to view live preparation progress and delivery status.
+        </p>
+      </div>
 
-      <form onSubmit={lookup} className="grid sm:grid-cols-[1fr_auto] gap-3 mt-8 max-w-xl">
-        <input
-          aria-label="Order number"
-          required
-          placeholder="e.g. SC-A8F4C2D1E0"
-          value={number}
-          onChange={e => setNumber(e.target.value)}
-          className="border border-[#ded0c8] bg-[#fdfbf9] p-3.5 text-sm outline-none focus:border-[#6f3d36] transition"
-        />
+      {/* Lookup Form */}
+      <form onSubmit={lookup} className="flex flex-col sm:flex-row gap-3 max-w-xl">
+        <div className="relative flex-1">
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#7A726D]" />
+          <input
+            aria-label="Order number"
+            required
+            placeholder="e.g. SC-A8F4C2D1E0"
+            value={number}
+            onChange={e => setNumber(e.target.value)}
+            className="w-full pl-11 pr-4 py-3.5 rounded-full border border-[#EAE3DC] bg-white text-sm text-[#1E1917] placeholder:text-[#9C938E] outline-none focus:border-[#1E1917] focus:ring-1 focus:ring-[#1E1917] transition shadow-subtle"
+          />
+        </div>
         <button
           disabled={busy}
-          className="bg-[#6f3d36] hover:bg-[#5b322c] text-white px-7 py-3.5 text-sm font-medium transition disabled:opacity-50 cursor-pointer"
+          className="px-7 py-3.5 rounded-full bg-[#1E1917] hover:bg-[#332C29] text-white text-sm font-semibold transition-all shadow-card hover:shadow-card-hover disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
         >
-          {busy ? 'Checking…' : 'Find my order'}
+          {busy ? 'Checking…' : 'Locate Order'}
         </button>
       </form>
 
       {error && (
-        <p role="alert" className="mt-4 text-sm text-red-700">
+        <div role="alert" className="p-4 rounded-xl bg-[#F8ECE9] border border-[#E8D4CF] text-[#933D32] text-xs max-w-xl">
           {error}
-        </p>
+        </div>
       )}
 
       {order && (
-        <div className="mt-10 border border-[#e5d9d1] bg-white p-6 md:p-8 max-w-3xl space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2 pb-4 border-b border-[#eee4dc]">
+        <div className="bg-white rounded-3xl border border-[#EAE3DC] p-6 sm:p-10 max-w-3xl space-y-8 shadow-card animate-in fade-in-50 duration-300">
+          {/* Header Card */}
+          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-3 pb-6 border-b border-[#F2ECE5]">
             <div>
               <span className="eyebrow">Order Reference</span>
-              <h2 className="serif text-3xl text-[#352c28] mt-1">{order.order_number}</h2>
+              <h2 className="serif text-3xl text-[#1E1917] font-normal mt-1">{order.order_number}</h2>
             </div>
-            <div className="sm:text-right">
-              <span className="eyebrow">Status</span>
-              <div className="capitalize mt-1 font-semibold text-[#6f3d36]">
+            <div>
+              <span className="inline-block px-3.5 py-1.5 rounded-full bg-[#F8ECE9] border border-[#E8D4CF] text-xs font-semibold capitalize text-[#933D32]">
                 {order.status.replaceAll('_', ' ')}
-              </div>
+              </span>
             </div>
           </div>
 
           {/* Fulfillment Badge & Info */}
-          <div className="p-4 bg-[#fbf7f4] border border-[#e8dcd6] rounded-none text-xs text-[#52443e] space-y-2">
-            <div className="flex items-center gap-2 font-semibold text-sm text-[#352c28]">
-              {isPickup ? <Store size={18} className="text-[#6f3d36]" /> : <Truck size={18} className="text-[#6f3d36]" />}
+          <div className="p-5 bg-[#FAF8F5] rounded-2xl border border-[#EAE3DC] text-xs text-[#5A524D] space-y-2.5">
+            <div className="flex items-center gap-2 font-semibold text-sm text-[#1E1917]">
+              {isPickup ? <Store size={18} className="text-[#933D32]" /> : <Truck size={18} className="text-[#933D32]" />}
               <span>{isPickup ? 'Store Pickup Order' : 'Doorstep Delivery Order'}</span>
             </div>
 
             {!isPickup ? (
-              <div className="space-y-1 pl-6 text-[#5e514b]">
-                <div className="flex items-center gap-1.5">
-                  <MapPin size={13} className="text-[#867872]" />
+              <div className="space-y-1.5 pl-6 text-[#5A524D]">
+                <div className="flex items-center gap-2">
+                  <MapPin size={13} className="text-[#933D32]" />
                   <span>
                     Destination: <b>{order.delivery_address}</b>, {order.city}, {order.state}
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <Calendar size={13} className="text-[#867872]" />
+                <div className="flex items-center gap-2">
+                  <Calendar size={13} className="text-[#933D32]" />
                   <span>
                     Delivery Schedule: <b>{order.delivery_date}</b> ({order.delivery_window})
                   </span>
                 </div>
               </div>
             ) : (
-              <div className="space-y-1 pl-6 text-[#5e514b]">
+              <div className="space-y-1.5 pl-6 text-[#5A524D]">
                 <div>
                   Pickup Location: <b>{SPEEDCAKE_PICKUP_LOCATION.name}</b>
                 </div>
@@ -139,40 +147,45 @@ export default function Track() {
           </div>
 
           {/* Progress Timeline */}
-          <div>
-            <h3 className="text-xs uppercase tracking-wider font-semibold text-[#867872] mb-3">
-              Progress
+          <div className="space-y-3">
+            <h3 className="text-xs uppercase tracking-wider font-semibold text-[#1E1917]">
+              Kitchen &middot; Delivery Milestones
             </h3>
             <div className="grid sm:grid-cols-2 gap-2.5">
-              {steps.map((step, i) => (
-                <div
-                  className={`text-xs px-3.5 py-3 flex items-center gap-2.5 border ${
-                    steps.indexOf(order.status) >= i
-                      ? 'bg-[#6f3d36] text-white border-[#6f3d36]'
-                      : 'bg-[#fcf9f6] text-[#867872] border-[#ded0c8]'
-                  }`}
-                  key={step}
-                >
-                  {steps.indexOf(order.status) >= i ? (
-                    <PackageCheck size={15} />
-                  ) : (
-                    <Clock3 size={15} />
-                  )}
-                  <span className="capitalize">{step.replaceAll('_', ' ')}</span>
-                </div>
-              ))}
+              {steps.map((step, i) => {
+                const isPassed = steps.indexOf(order.status) >= i
+                return (
+                  <div
+                    key={step}
+                    className={`text-xs px-4 py-3 rounded-xl flex items-center gap-3 border transition-all ${
+                      isPassed
+                        ? 'bg-[#1E1917] text-white border-[#1E1917] shadow-sm'
+                        : 'bg-[#FAF8F5] text-[#7A726D] border-[#EAE3DC]'
+                    }`}
+                  >
+                    {isPassed ? (
+                      <PackageCheck size={16} className="text-[#E8D4CF]" />
+                    ) : (
+                      <Clock3 size={16} className="text-[#C8BFBA]" />
+                    )}
+                    <span className="capitalize font-medium">{step.replaceAll('_', ' ')}</span>
+                  </div>
+                )
+              })}
             </div>
           </div>
 
-          <div className="pt-4 border-t border-[#eee4dc] flex items-center justify-between text-xs">
-            <span className="text-[#756862]">
-              Payment Status: <b className="capitalize text-[#352c28]">{order.payment_status}</b>
+          {/* Footer Card */}
+          <div className="pt-4 border-t border-[#F2ECE5] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+            <span className="text-[#7A726D]">
+              Payment Status: <b className="capitalize text-[#1E1917]">{order.payment_status}</b>
             </span>
             <Link
               href={`/account/orders/${order.order_number}`}
-              className="text-[#6f3d36] font-semibold underline hover:text-[#5b322c]"
+              className="inline-flex items-center gap-1 font-semibold text-[#933D32] hover:underline"
             >
-              View complete order details →
+              <span>View complete order receipt</span>
+              <ArrowRight size={13} />
             </Link>
           </div>
         </div>

@@ -33,7 +33,7 @@ type CheckoutFormData = {
 }
 
 const inputClass =
-  'w-full border border-[#ded0c8] bg-[#fdfbf9] px-3.5 py-3 text-sm text-[#352c28] outline-none focus:border-[#6f3d36] transition rounded-none placeholder:text-[#9c8e87]'
+  'w-full border border-[#EAE3DC] bg-[#FAF8F5] px-4 py-3 rounded-xl text-sm text-[#1E1917] outline-none focus:border-[#1E1917] focus:bg-white focus:ring-1 focus:ring-[#1E1917] transition shadow-subtle placeholder:text-[#9C938E]'
 
 export default function Checkout() {
   const router = useRouter()
@@ -281,39 +281,47 @@ export default function Checkout() {
 
   return (
     <main className="container py-12 md:py-16">
-      <div className="eyebrow">Almost there</div>
-      <h1 className="serif text-4xl md:text-5xl mt-2 text-[#352c28]">Checkout</h1>
+      <div className="space-y-2 mb-8">
+        <div className="eyebrow flex items-center gap-1.5">
+          <span>Final Step</span>
+          <span>&middot;</span>
+          <span>Secure Checkout</span>
+        </div>
+        <h1 className="serif text-4xl md:text-5xl text-[#1E1917] font-normal tracking-tight">
+          Complete Your Order
+        </h1>
+      </div>
 
-      <div className="grid lg:grid-cols-[1fr_380px] gap-12 mt-10">
-        <form onSubmit={handleSubmit(submit)} className="space-y-10" noValidate>
+      <div className="grid lg:grid-cols-[1fr_390px] gap-8 lg:gap-12 mt-6 items-start">
+        <form onSubmit={handleSubmit(submit)} className="space-y-8" noValidate>
           {/* Section 1: Fulfillment Selection */}
-          <div className="bg-white border border-[#ded0c8] p-6 md:p-8">
-            <h2 className="serif text-2xl text-[#352c28] mb-2">1. Delivery or Pickup</h2>
-            <p className="text-xs text-[#756862] mb-6">
-              Select how you would like to receive your freshly prepared cake.
+          <div className="bg-white rounded-3xl border border-[#EAE3DC] p-6 md:p-8 shadow-card">
+            <h2 className="serif text-2xl text-[#1E1917] font-normal mb-1">1. Delivery or Pickup</h2>
+            <p className="text-xs text-[#7A726D] mb-6">
+              Select how you would like to receive your freshly baked celebration cake.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button
                 type="button"
                 onClick={() => setValue('fulfillment_type', 'delivery')}
-                className={`p-4 border text-left flex items-start gap-3 transition cursor-pointer ${
+                className={`p-5 rounded-2xl border text-left flex items-start gap-4 transition cursor-pointer ${
                   !isPickup
-                    ? 'border-[#6f3d36] bg-[#fbf7f4] ring-1 ring-[#6f3d36]'
-                    : 'border-[#ded0c8] bg-white hover:border-[#bba89f]'
+                    ? 'border-[#1E1917] bg-[#FAF8F5] ring-1 ring-[#1E1917] shadow-sm'
+                    : 'border-[#EAE3DC] bg-white hover:border-[#DFD7CF]'
                 }`}
               >
                 <div
-                  className={`p-2 rounded-full mt-0.5 ${
-                    !isPickup ? 'bg-[#6f3d36] text-white' : 'bg-[#f4ebe6] text-[#6f3d36]'
+                  className={`p-2.5 rounded-xl mt-0.5 ${
+                    !isPickup ? 'bg-[#1E1917] text-white' : 'bg-[#FAF8F5] text-[#1E1917] border border-[#EAE3DC]'
                   }`}
                 >
                   <Truck size={18} />
                 </div>
                 <div>
-                  <div className="font-semibold text-sm text-[#352c28]">Doorstep Delivery</div>
-                  <div className="text-xs text-[#756862] mt-0.5">
-                    Carefully brought to your home, office, or event location.
+                  <div className="font-semibold text-sm text-[#1E1917]">Doorstep Delivery</div>
+                  <div className="text-xs text-[#7A726D] mt-1 leading-relaxed">
+                    Carefully transported in cold courier transit to your home, office, or venue.
                   </div>
                 </div>
               </button>
@@ -321,43 +329,43 @@ export default function Checkout() {
               <button
                 type="button"
                 onClick={() => setValue('fulfillment_type', 'pickup')}
-                className={`p-4 border text-left flex items-start gap-3 transition cursor-pointer ${
+                className={`p-5 rounded-2xl border text-left flex items-start gap-4 transition cursor-pointer ${
                   isPickup
-                    ? 'border-[#6f3d36] bg-[#fbf7f4] ring-1 ring-[#6f3d36]'
-                    : 'border-[#ded0c8] bg-white hover:border-[#bba89f]'
+                    ? 'border-[#1E1917] bg-[#FAF8F5] ring-1 ring-[#1E1917] shadow-sm'
+                    : 'border-[#EAE3DC] bg-white hover:border-[#DFD7CF]'
                 }`}
               >
                 <div
-                  className={`p-2 rounded-full mt-0.5 ${
-                    isPickup ? 'bg-[#6f3d36] text-white' : 'bg-[#f4ebe6] text-[#6f3d36]'
+                  className={`p-2.5 rounded-xl mt-0.5 ${
+                    isPickup ? 'bg-[#1E1917] text-white' : 'bg-[#FAF8F5] text-[#1E1917] border border-[#EAE3DC]'
                   }`}
                 >
                   <Store size={18} />
                 </div>
                 <div>
-                  <div className="font-semibold text-sm text-[#352c28]">Store Pickup</div>
-                  <div className="text-xs text-[#756862] mt-0.5">
-                    Collect directly from our Lekki bakery with zero delivery charge.
+                  <div className="font-semibold text-sm text-[#1E1917]">Bakery Pickup</div>
+                  <div className="text-xs text-[#7A726D] mt-1 leading-relaxed">
+                    Collect directly from our Lekki Phase 1 bakery kitchen with zero delivery fee.
                   </div>
                 </div>
               </button>
             </div>
             {errors.fulfillment_type && (
-              <p className="text-xs text-red-700 mt-2">{errors.fulfillment_type.message}</p>
+              <p className="text-xs text-[#933D32] mt-2 font-medium">{errors.fulfillment_type.message}</p>
             )}
           </div>
 
           {/* Section 2: Billing Details */}
-          <div className="bg-white border border-[#ded0c8] p-6 md:p-8">
-            <h2 className="serif text-2xl text-[#352c28] mb-2">2. Billing Details</h2>
-            <p className="text-xs text-[#756862] mb-6">
+          <div className="bg-white rounded-3xl border border-[#EAE3DC] p-6 md:p-8 shadow-card">
+            <h2 className="serif text-2xl text-[#1E1917] font-normal mb-1">2. Billing Details</h2>
+            <p className="text-xs text-[#7A726D] mb-6">
               Enter your contact details for order notifications and payment receipts.
             </p>
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs uppercase tracking-wider text-[#63534c] mb-1.5 font-medium">
-                  Your First name <span className="text-[#a43629]">*</span>
+                <label className="block text-xs uppercase tracking-wider text-[#1E1917] mb-1.5 font-semibold">
+                  Your First name <span className="text-[#933D32]">*</span>
                 </label>
                 <input
                   type="text"
@@ -366,13 +374,13 @@ export default function Checkout() {
                   {...register('first_name')}
                 />
                 {errors.first_name && (
-                  <p className="text-xs text-red-700 mt-1">{errors.first_name.message}</p>
+                  <p className="text-xs text-[#933D32] mt-1 font-medium">{errors.first_name.message}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-wider text-[#63534c] mb-1.5 font-medium">
-                  Your Last name <span className="text-[#a43629]">*</span>
+                <label className="block text-xs uppercase tracking-wider text-[#1E1917] mb-1.5 font-semibold">
+                  Your Last name <span className="text-[#933D32]">*</span>
                 </label>
                 <input
                   type="text"
@@ -381,26 +389,26 @@ export default function Checkout() {
                   {...register('last_name')}
                 />
                 {errors.last_name && (
-                  <p className="text-xs text-red-700 mt-1">{errors.last_name.message}</p>
+                  <p className="text-xs text-[#933D32] mt-1 font-medium">{errors.last_name.message}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-wider text-[#63534c] mb-1.5 font-medium">
-                  Country / Region <span className="text-[#a43629]">*</span>
+                <label className="block text-xs uppercase tracking-wider text-[#1E1917] mb-1.5 font-semibold">
+                  Country / Region <span className="text-[#933D32]">*</span>
                 </label>
                 <input
                   type="text"
                   readOnly
                   defaultValue="Nigeria"
-                  className={`${inputClass} bg-[#f5ede8] cursor-not-allowed`}
+                  className={`${inputClass} bg-[#F4EFEB] cursor-not-allowed`}
                   {...register('country')}
                 />
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-wider text-[#63534c] mb-1.5 font-medium">
-                  Your Phone number <span className="text-[#a43629]">*</span>
+                <label className="block text-xs uppercase tracking-wider text-[#1E1917] mb-1.5 font-semibold">
+                  Your Phone number <span className="text-[#933D32]">*</span>
                 </label>
                 <input
                   type="tel"
@@ -409,13 +417,13 @@ export default function Checkout() {
                   {...register('phone')}
                 />
                 {errors.phone && (
-                  <p className="text-xs text-red-700 mt-1">{errors.phone.message}</p>
+                  <p className="text-xs text-[#933D32] mt-1 font-medium">{errors.phone.message}</p>
                 )}
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-xs uppercase tracking-wider text-[#63534c] mb-1.5 font-medium">
-                  Your Email address <span className="text-[#a43629]">*</span>
+                <label className="block text-xs uppercase tracking-wider text-[#1E1917] mb-1.5 font-semibold">
+                  Your Email address <span className="text-[#933D32]">*</span>
                 </label>
                 <input
                   type="email"
@@ -424,13 +432,13 @@ export default function Checkout() {
                   {...register('email')}
                 />
                 {errors.email && (
-                  <p className="text-xs text-red-700 mt-1">{errors.email.message}</p>
+                  <p className="text-xs text-[#933D32] mt-1 font-medium">{errors.email.message}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-wider text-[#63534c] mb-1.5 font-medium">
-                  Town / City <span className="text-[#a43629]">*</span>
+                <label className="block text-xs uppercase tracking-wider text-[#1E1917] mb-1.5 font-semibold">
+                  Town / City <span className="text-[#933D32]">*</span>
                 </label>
                 <input
                   type="text"
@@ -438,12 +446,12 @@ export default function Checkout() {
                   className={inputClass}
                   {...register('city')}
                 />
-                {errors.city && <p className="text-xs text-red-700 mt-1">{errors.city.message}</p>}
+                {errors.city && <p className="text-xs text-[#933D32] mt-1 font-medium">{errors.city.message}</p>}
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-wider text-[#63534c] mb-1.5 font-medium">
-                  State <span className="text-[#a43629]">*</span>
+                <label className="block text-xs uppercase tracking-wider text-[#1E1917] mb-1.5 font-semibold">
+                  State <span className="text-[#933D32]">*</span>
                 </label>
                 <input
                   type="text"
@@ -452,7 +460,7 @@ export default function Checkout() {
                   {...register('state')}
                 />
                 {errors.state && (
-                  <p className="text-xs text-red-700 mt-1">{errors.state.message}</p>
+                  <p className="text-xs text-[#933D32] mt-1 font-medium">{errors.state.message}</p>
                 )}
               </div>
             </div>
@@ -461,20 +469,20 @@ export default function Checkout() {
           {/* Section 3: Fulfillment Specific Details */}
           {!isPickup ? (
             /* DELIVERY DETAILS */
-            <div className="bg-white border border-[#ded0c8] p-6 md:p-8 space-y-5">
+            <div className="bg-white rounded-3xl border border-[#EAE3DC] p-6 md:p-8 space-y-5 shadow-card">
               <div>
-                <h2 className="serif text-2xl text-[#352c28] mb-1 flex items-center gap-2">
-                  <Truck size={22} className="text-[#6f3d36]" />
+                <h2 className="serif text-2xl text-[#1E1917] font-normal mb-1 flex items-center gap-2">
+                  <Truck size={22} className="text-[#933D32]" />
                   <span>3. Delivery Details</span>
                 </h2>
-                <p className="text-xs text-[#756862]">
+                <p className="text-xs text-[#7A726D]">
                   Specify your exact delivery address and delivery schedule.
                 </p>
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-wider text-[#63534c] mb-1.5 font-medium">
-                  Your House Address <span className="text-[#a43629]">*</span>
+                <label className="block text-xs uppercase tracking-wider text-[#1E1917] mb-1.5 font-semibold">
+                  Your House Address <span className="text-[#933D32]">*</span>
                 </label>
                 <input
                   type="text"
@@ -483,12 +491,12 @@ export default function Checkout() {
                   {...register('address')}
                 />
                 {errors.address && (
-                  <p className="text-xs text-red-700 mt-1">{errors.address.message}</p>
+                  <p className="text-xs text-[#933D32] mt-1 font-medium">{errors.address.message}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-wider text-[#63534c] mb-1.5 font-medium">
+                <label className="block text-xs uppercase tracking-wider text-[#1E1917] mb-1.5 font-semibold">
                   Landmark (Optional)
                 </label>
                 <input
@@ -498,14 +506,14 @@ export default function Checkout() {
                   {...register('landmark')}
                 />
                 {errors.landmark && (
-                  <p className="text-xs text-red-700 mt-1">{errors.landmark.message}</p>
+                  <p className="text-xs text-[#933D32] mt-1 font-medium">{errors.landmark.message}</p>
                 )}
               </div>
 
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-[#63534c] mb-1.5 font-medium">
-                    Delivery Date <span className="text-[#a43629]">*</span>
+                  <label className="block text-xs uppercase tracking-wider text-[#1E1917] mb-1.5 font-semibold">
+                    Delivery Date <span className="text-[#933D32]">*</span>
                   </label>
                   <input
                     type="date"
@@ -514,13 +522,13 @@ export default function Checkout() {
                     {...register('delivery_date')}
                   />
                   {errors.delivery_date && (
-                    <p className="text-xs text-red-700 mt-1">{errors.delivery_date.message}</p>
+                    <p className="text-xs text-[#933D32] mt-1 font-medium">{errors.delivery_date.message}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-[#63534c] mb-1.5 font-medium">
-                    Delivery Window <span className="text-[#a43629]">*</span>
+                  <label className="block text-xs uppercase tracking-wider text-[#1E1917] mb-1.5 font-semibold">
+                    Delivery Window <span className="text-[#933D32]">*</span>
                   </label>
                   <select
                     className={inputClass}
@@ -533,13 +541,13 @@ export default function Checkout() {
                     ))}
                   </select>
                   {errors.delivery_window && (
-                    <p className="text-xs text-red-700 mt-1">{errors.delivery_window.message}</p>
+                    <p className="text-xs text-[#933D32] mt-1 font-medium">{errors.delivery_window.message}</p>
                   )}
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-wider text-[#63534c] mb-1.5 font-medium">
+                <label className="block text-xs uppercase tracking-wider text-[#1E1917] mb-1.5 font-semibold">
                   Delivery Instructions (Optional)
                 </label>
                 <textarea
@@ -549,43 +557,43 @@ export default function Checkout() {
                   {...register('instructions')}
                 />
                 {errors.instructions && (
-                  <p className="text-xs text-red-700 mt-1">{errors.instructions.message}</p>
+                  <p className="text-xs text-[#933D32] mt-1 font-medium">{errors.instructions.message}</p>
                 )}
               </div>
             </div>
           ) : (
             /* PICKUP DETAILS */
-            <div className="bg-white border border-[#ded0c8] p-6 md:p-8 space-y-4">
+            <div className="bg-white rounded-3xl border border-[#EAE3DC] p-6 md:p-8 space-y-4 shadow-card">
               <div>
-                <h2 className="serif text-2xl text-[#352c28] mb-1 flex items-center gap-2">
-                  <Store size={22} className="text-[#6f3d36]" />
+                <h2 className="serif text-2xl text-[#1E1917] font-normal mb-1 flex items-center gap-2">
+                  <Store size={22} className="text-[#933D32]" />
                   <span>3. Pickup Details</span>
                 </h2>
-                <p className="text-xs text-[#756862]">
+                <p className="text-xs text-[#7A726D]">
                   Collect your cake fresh from our central bakery kitchen.
                 </p>
               </div>
 
-              <div className="p-4 bg-[#fbf7f4] border border-[#e8dcd6] space-y-2 text-xs text-[#52443e]">
-                <div className="font-semibold text-sm text-[#352c28] flex items-center gap-1.5">
-                  <MapPin size={16} className="text-[#6f3d36]" />
+              <div className="p-5 bg-[#FAF8F5] rounded-2xl border border-[#EAE3DC] space-y-2 text-xs text-[#5A524D]">
+                <div className="font-semibold text-sm text-[#1E1917] flex items-center gap-1.5">
+                  <MapPin size={16} className="text-[#933D32]" />
                   <span>{SPEEDCAKE_PICKUP_LOCATION.name}</span>
                 </div>
-                <p className="pl-5 text-[#5e514b]">
+                <p className="pl-5 text-[#5A524D]">
                   {SPEEDCAKE_PICKUP_LOCATION.address}, {SPEEDCAKE_PICKUP_LOCATION.city},{' '}
                   {SPEEDCAKE_PICKUP_LOCATION.state}, {SPEEDCAKE_PICKUP_LOCATION.country}
                 </p>
-                <div className="pl-5 text-[#756862] flex items-center gap-1.5 pt-1">
+                <div className="pl-5 text-[#7A726D] flex items-center gap-1.5 pt-1">
                   <Clock size={13} />
                   <span>Hours: {SPEEDCAKE_PICKUP_LOCATION.hours}</span>
                 </div>
-                <div className="pl-5 text-[#756862] pt-1">
+                <div className="pl-5 text-[#7A726D] pt-1">
                   Phone:{' '}
-                  <span className="font-medium text-[#352c28]">
+                  <span className="font-medium text-[#1E1917]">
                     {SPEEDCAKE_PICKUP_LOCATION.phone}
                   </span>
                 </div>
-                <div className="mt-3 pt-3 border-t border-[#e8dcd6] text-[#6f3d36] font-medium leading-relaxed">
+                <div className="mt-3 pt-3 border-t border-[#EAE3DC] text-[#933D32] font-medium leading-relaxed">
                   Notice: {SPEEDCAKE_PICKUP_LOCATION.instructions}
                 </div>
               </div>
@@ -596,19 +604,19 @@ export default function Checkout() {
           {error && (
             <div
               role="alert"
-              className="p-4 bg-[#fcf0ee] border border-[#f2cfc7] text-[#8b342a] text-xs flex gap-3 items-start"
+              className="p-4 rounded-xl bg-[#F8ECE9] border border-[#E8D4CF] text-[#933D32] text-xs flex gap-3 items-start"
             >
               <AlertCircle size={16} className="shrink-0 mt-0.5" />
-              <div className="flex-1 leading-5">{error}</div>
+              <div className="flex-1 leading-5 font-medium">{error}</div>
             </div>
           )}
 
           {/* Submit Button */}
-          <div>
+          <div className="pt-2">
             <button
               type="submit"
               disabled={loading || !items.length}
-              className="w-full bg-[#6f3d36] hover:bg-[#5b322c] text-white py-4 text-sm font-medium transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full bg-[#1E1917] hover:bg-[#332C29] text-white py-4 px-6 rounded-full text-sm font-semibold transition-all shadow-card hover:shadow-card-hover disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
             >
               {loading ? (
                 <>
@@ -619,43 +627,43 @@ export default function Checkout() {
                 <span>Pay {naira(totalAmountKobo)} with Paystack</span>
               )}
             </button>
-            <p className="text-center text-[11px] text-[#756862] mt-3">
-              Protected by 256-bit encryption · Secure card & bank payment via Paystack
+            <p className="text-center text-[11px] text-[#7A726D] mt-3">
+              Protected by 256-bit encryption &middot; Secure card &amp; bank transfer via Paystack
             </p>
           </div>
         </form>
 
         {/* Order Summary Sidebar */}
-        <aside className="space-y-6">
-          <div className="bg-[#f5ece6] border border-[#e3d5cc] p-6">
-            <h2 className="serif text-2xl text-[#352c28] pb-4 border-b border-[#dac8be]">
+        <aside className="space-y-6 lg:sticky lg:top-28">
+          <div className="bg-white rounded-3xl border border-[#EAE3DC] p-6 sm:p-7 shadow-card space-y-5">
+            <h2 className="serif text-2xl text-[#1E1917] font-normal pb-3 border-b border-[#F2ECE5]">
               Order Summary
             </h2>
 
             {/* Cake items list */}
-            <div className="divide-y divide-[#e8dcd4] max-h-[380px] overflow-y-auto pr-1">
+            <div className="divide-y divide-[#F2ECE5] max-h-[360px] overflow-y-auto pr-1">
               {items.map(i => (
-                <div key={i.key} className="py-4 text-sm flex justify-between gap-3">
+                <div key={i.key} className="py-3.5 text-sm flex justify-between gap-3 first:pt-0 last:pb-0">
                   <div>
-                    <span className="font-medium text-[#352c28]">
-                      {i.quantity} × {i.name}
+                    <span className="font-medium text-[#1E1917]">
+                      {i.quantity} &times; {i.name}
                     </span>
-                    <small className="block text-xs text-[#756862] mt-0.5">{i.size}</small>
+                    <small className="block text-xs text-[#7A726D] mt-0.5">{i.size}</small>
                     {Object.values(i.choices || {})
                       .flat()
                       .map(c => (
-                        <small key={c.value} className="block text-xs text-[#756862]">
+                        <small key={c.value} className="block text-xs text-[#7A726D]">
                           {c.label}
                           {c.fee_kobo ? ` · +${naira(c.fee_kobo)}` : ''}
                         </small>
                       ))}
                     {i.message && (
-                      <small className="block text-xs italic text-[#6f3d36] mt-0.5">
+                      <small className="block text-xs italic text-[#933D32] mt-0.5">
                         &ldquo;{i.message}&rdquo;
                       </small>
                     )}
                   </div>
-                  <span className="font-semibold text-[#352c28] shrink-0">
+                  <span className="font-semibold text-[#1E1917] shrink-0">
                     {naira(i.unitPrice * i.quantity)}
                   </span>
                 </div>
@@ -663,36 +671,36 @@ export default function Checkout() {
             </div>
 
             {/* Customer & Fulfillment Preview */}
-            <div className="mt-4 pt-4 border-t border-[#dac8be] text-xs space-y-2 text-[#52443e]">
+            <div className="pt-4 border-t border-[#F2ECE5] text-xs space-y-2 text-[#5A524D]">
               <div className="flex justify-between">
-                <span className="text-[#867872]">Customer:</span>
-                <span className="font-medium text-right text-[#352c28]">
+                <span className="text-[#7A726D]">Customer:</span>
+                <span className="font-medium text-right text-[#1E1917]">
                   {firstName || lastName ? `${firstName} ${lastName}`.trim() : '—'}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#867872]">Contact:</span>
-                <span className="font-medium text-right text-[#352c28]">{phone || email || '—'}</span>
+                <span className="text-[#7A726D]">Contact:</span>
+                <span className="font-medium text-right text-[#1E1917]">{phone || email || '—'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[#867872]">Method:</span>
-                <span className="font-semibold text-[#6f3d36] uppercase tracking-wide">
+                <span className="text-[#7A726D]">Method:</span>
+                <span className="font-semibold text-[#933D32] uppercase tracking-wide">
                   {isPickup ? 'Store Pickup' : 'Home Delivery'}
                 </span>
               </div>
               {!isPickup ? (
                 <>
                   <div className="flex justify-between">
-                    <span className="text-[#867872]">Destination:</span>
-                    <span className="text-right text-[#352c28] max-w-[190px] truncate">
+                    <span className="text-[#7A726D]">Destination:</span>
+                    <span className="text-right text-[#1E1917] max-w-[190px] truncate">
                       {address ? `${address}, ` : ''}
                       {city ? `${city}, ` : ''}
                       {watch('state') || '—'}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-[#867872]">Schedule:</span>
-                    <span className="text-right text-[#352c28]">
+                    <span className="text-[#7A726D]">Schedule:</span>
+                    <span className="text-right text-[#1E1917]">
                       {date ? `${date}` : 'Select date'}
                       {deliveryWindow ? ` · ${deliveryWindow}` : ''}
                     </span>
@@ -700,8 +708,8 @@ export default function Checkout() {
                 </>
               ) : (
                 <div className="flex justify-between">
-                  <span className="text-[#867872]">Location:</span>
-                  <span className="text-right text-[#352c28]">
+                  <span className="text-[#7A726D]">Location:</span>
+                  <span className="text-right text-[#1E1917]">
                     {SPEEDCAKE_PICKUP_LOCATION.name}
                   </span>
                 </div>
@@ -709,16 +717,16 @@ export default function Checkout() {
             </div>
 
             {/* Financial Summary */}
-            <div className="mt-5 pt-4 border-t border-[#dac8be] space-y-2.5 text-sm">
-              <div className="flex justify-between text-[#52443e]">
+            <div className="pt-4 border-t border-[#F2ECE5] space-y-2.5 text-sm">
+              <div className="flex justify-between text-[#5A524D]">
                 <span>Items Subtotal</span>
                 <span>{naira(subtotal)}</span>
               </div>
-              <div className="flex justify-between text-[#52443e]">
+              <div className="flex justify-between text-[#5A524D]">
                 <span>{isPickup ? 'Store Pickup' : 'Delivery Fee'}</span>
                 <span>{isPickup ? '₦0 (Free)' : naira(currentFeeKobo)}</span>
               </div>
-              <div className="flex justify-between font-serif font-bold text-lg text-[#352c28] pt-3 border-t border-[#dac8be]">
+              <div className="flex justify-between font-serif font-bold text-lg text-[#1E1917] pt-3 border-t border-[#F2ECE5]">
                 <span>Total Due</span>
                 <span>{naira(totalAmountKobo)}</span>
               </div>

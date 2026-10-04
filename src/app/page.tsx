@@ -1,5 +1,210 @@
 import Link from 'next/link'
-import {ArrowDownRight,ArrowRight,Heart,PackageCheck,Sparkles} from 'lucide-react'
-import {getProducts} from '@/lib/products'
-import {ProductCard} from '@/components/product-card'
-export default async function Home(){const products=await getProducts();const categories=[...new Set(products.map(p=>p.category))];return <main><section className="container pt-8"><div className="grid lg:grid-cols-[1.02fr_.98fr] min-h-[570px] bg-[#f1e2d9]"><div className="px-8 py-12 md:px-16 md:py-20 flex flex-col justify-center"><div className="eyebrow mb-6">A little joy, made fresh</div><h1 className="serif text-[52px] md:text-[68px] leading-[1.02] tracking-[-.04em] max-w-[560px]">Make the moment <i className="font-normal text-[#9c5e52]">sweeter.</i></h1><p className="mt-6 max-w-[405px] text-[15px] leading-7 text-[#625753]">Thoughtfully made cakes for birthdays, big days, and the lovely in-between. Made fresh for your celebration, with delivery availability shown at checkout.</p><div className="flex gap-4 mt-9 items-center"><Link href="/cakes" className="bg-[#6f3d36] text-white px-6 py-4 text-sm">Find your cake <ArrowRight className="inline ml-4" size={16}/></Link><Link href="#collections" className="text-sm border-b border-[#6f3d36] pb-1">Explore the collection</Link></div><div className="flex items-center gap-3 mt-12 text-xs text-[#74615b]"><span className="w-9 h-9 rounded-full border border-[#bd9c8e] grid place-items-center"><Sparkles size={16}/></span>Small-batch baked · Always made to order</div></div><div className="relative min-h-[400px] lg:min-h-full"><img className="absolute inset-0 w-full h-full object-cover" src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1400&q=90" alt="A beautifully decorated celebration cake"/><div className="absolute bottom-7 left-7 bg-[#fff9f2] px-5 py-4"><div className="eyebrow">The celebration edit</div><div className="serif text-xl mt-1">Made for sharing.</div></div></div></div></section><section className="container py-16 grid md:grid-cols-3 gap-8 border-b border-[#eadfd7]"><div className="flex gap-4"><Heart className="text-[#9c5e52]"/><div><b className="serif text-lg">Made just for you</b><p className="text-sm text-[#756862] mt-1">Every cake is baked fresh to order.</p></div></div><div className="flex gap-4"><PackageCheck className="text-[#9c5e52]"/><div><b className="serif text-lg">Delivered with care</b><p className="text-sm text-[#756862] mt-1">Delivery options are shown when you enter your area.</p></div></div><div className="flex gap-4"><Sparkles className="text-[#9c5e52]"/><div><b className="serif text-lg">Made to celebrate</b><p className="text-sm text-[#756862] mt-1">A thoughtful touch for every occasion.</p></div></div></section><section className="container py-20" id="collections"><div className="flex justify-between items-end mb-9"><div><div className="eyebrow">A few favourites</div><h2 className="serif text-4xl mt-3">The cake table</h2></div><Link className="text-sm border-b border-[#6f3d36] pb-1" href="/cakes">See all cakes <ArrowRight className="inline ml-2" size={15}/></Link></div><div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12">{products.slice(0,3).map(p=><ProductCard key={p.id} product={p}/>)}</div></section><section className="bg-[#ead4ca] py-16"><div className="container grid md:grid-cols-2 items-center gap-10"><div><div className="eyebrow">For every kind of day</div><h2 className="serif text-4xl mt-3">A reason is optional.<br/>Cake is not.</h2><p className="text-sm text-[#625753] leading-7 mt-4 max-w-md">From candle-lit birthdays to just-because Tuesdays, find a little something worth gathering around.</p><Link className="inline-block mt-6 border-b border-[#6f3d36] pb-1 text-sm" href="/cakes">Find your occasion <ArrowDownRight size={16} className="inline ml-2"/></Link></div><div className="grid grid-cols-2 gap-3">{categories.map((x,i)=><Link key={x} href={`/cakes?category=${x}`} className={`h-32 flex items-end p-4 text-white text-lg serif bg-cover bg-center ${i===0?'bg-[#986b62]':i===1?'bg-[#af8f80]':i===2?'bg-[#8f7772]':'bg-[#b78275]'}`}><span>{x} cakes ↗</span></Link>)}</div></div></section><section className="container py-20"><div className="text-center max-w-xl mx-auto"><div className="eyebrow">The Speed Cake promise</div><h2 className="serif text-4xl mt-3">There’s always time<br/>for something lovely.</h2><p className="text-sm leading-7 text-[#756862] mt-5">Choose your cake, tell us the little details, and we’ll take it from there. We’ll keep you in the loop from our kitchen to your door.</p><Link className="inline-block bg-[#6f3d36] text-white px-6 py-4 text-sm mt-7" href="/cakes">Choose a cake <ArrowRight className="inline ml-5" size={16}/></Link></div></section></main>}
+import { ArrowRight, Sparkles, ShieldCheck, HeartHandshake, Truck } from 'lucide-react'
+import { getProducts } from '@/lib/products'
+import { ProductCard } from '@/components/product-card'
+
+export default async function Home() {
+  const products = await getProducts()
+  const categories = [...new Set(products.map(p => p.category))]
+
+  return (
+    <main className="space-y-24 md:space-y-32">
+      {/* 1. Hero Section */}
+      <section className="container pt-6 md:pt-10">
+        <div className="relative rounded-3xl bg-gradient-to-b from-[#F5EFE9] to-[#FAF8F5] border border-[#EAE3DC] p-8 md:p-14 lg:p-16 overflow-hidden">
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+            {/* Left Narrative */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 border border-[#DFD7CF] text-[11px] font-semibold tracking-wider uppercase text-[#933D32] shadow-subtle">
+                <Sparkles size={13} className="text-[#933D32]" />
+                <span>Small-Batch Bakery &middot; Baked Fresh in Lagos</span>
+              </div>
+
+              <h1 className="serif text-5xl md:text-6xl lg:text-7xl font-normal text-[#1E1917] tracking-tight leading-[1.06]">
+                Make the moment <span className="italic text-[#933D32]">sweeter.</span>
+              </h1>
+
+              <p className="text-base md:text-lg text-[#5A524D] leading-relaxed max-w-xl">
+                Thoughtfully crafted celebration cakes baked to order with premium butter, fresh berry compotes, and hand-piped inscriptions. Delivered safely to your doorstep or ready for pickup.
+              </p>
+
+              <div className="pt-2 flex flex-wrap items-center gap-4">
+                <Link
+                  href="/cakes"
+                  className="inline-flex items-center gap-2 px-7 py-4 rounded-full text-sm font-semibold text-white bg-[#1E1917] hover:bg-[#332C29] transition-all shadow-card hover:shadow-card-hover"
+                >
+                  <span>Explore Cake Menu</span>
+                  <ArrowRight size={16} />
+                </Link>
+
+                <Link
+                  href="/track"
+                  className="inline-flex items-center gap-2 px-6 py-4 rounded-full text-sm font-medium text-[#1E1917] bg-white border border-[#DFD7CF] hover:border-[#1E1917] transition-all shadow-subtle"
+                >
+                  <span>Track an Order</span>
+                </Link>
+              </div>
+
+              <div className="pt-4 flex items-center gap-8 text-xs text-[#7A726D]">
+                <div className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#2A6947]" />
+                  <span>2–5 days advance notice</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#2A6947]" />
+                  <span>Secure Paystack payments</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Hero Visual */}
+            <div className="lg:col-span-5 relative">
+              <div className="relative rounded-2xl overflow-hidden aspect-[0.92] shadow-card bg-[#EAE3DC]">
+                <img
+                  className="w-full h-full object-cover"
+                  src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1200&q=90"
+                  alt="Artisanal celebration cake with fresh berry topping"
+                />
+
+                {/* Floating Highlight Card */}
+                <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-4 rounded-xl border border-white/60 shadow-card flex items-center justify-between">
+                  <div>
+                    <div className="text-[10px] uppercase font-bold tracking-widest text-[#933D32]">
+                      Signature Recipe
+                    </div>
+                    <div className="serif text-base text-[#1E1917] font-medium">
+                      Sunday Strawberry
+                    </div>
+                  </div>
+                  <Link
+                    href="/cakes/sunday-strawberry"
+                    className="text-xs font-semibold text-[#1E1917] underline decoration-[#DFD7CF] hover:decoration-[#1E1917]"
+                  >
+                    View cake &rarr;
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 2. Value Pillars */}
+      <section className="container">
+        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+          <div className="bg-white rounded-2xl p-8 border border-[#EAE3DC] shadow-subtle space-y-3">
+            <div className="w-11 h-11 rounded-xl bg-[#F8ECE9] text-[#933D32] flex items-center justify-center">
+              <HeartHandshake size={22} />
+            </div>
+            <h3 className="serif text-xl text-[#1E1917] font-normal">Made Fresh to Order</h3>
+            <p className="text-sm text-[#7A726D] leading-relaxed">
+              We never freeze cake layers. Every single order is mixed, baked, filled, and piped specifically for your scheduled date.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-8 border border-[#EAE3DC] shadow-subtle space-y-3">
+            <div className="w-11 h-11 rounded-xl bg-[#F8ECE9] text-[#933D32] flex items-center justify-center">
+              <Truck size={22} />
+            </div>
+            <h3 className="serif text-xl text-[#1E1917] font-normal">Dedicated Cake Couriers</h3>
+            <p className="text-sm text-[#7A726D] leading-relaxed">
+              Transported flat and cold in temperature-controlled boxes across Lagos. Or pick up directly at our Lekki bakery.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-8 border border-[#EAE3DC] shadow-subtle space-y-3">
+            <div className="w-11 h-11 rounded-xl bg-[#F8ECE9] text-[#933D32] flex items-center justify-center">
+              <ShieldCheck size={22} />
+            </div>
+            <h3 className="serif text-xl text-[#1E1917] font-normal">Bespoke Inscriptions</h3>
+            <p className="text-sm text-[#7A726D] leading-relaxed">
+              Add your custom greeting card note, custom piping inscription, and celebration candles right from the cake customizer.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. Featured Collection Showcase */}
+      <section className="container" id="collections">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-4 mb-10">
+          <div>
+            <div className="eyebrow mb-1">Handpicked Recipes</div>
+            <h2 className="serif text-3xl md:text-4xl text-[#1E1917] font-normal">
+              The Cake Collection
+            </h2>
+          </div>
+          <Link
+            href="/cakes"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#1E1917] hover:text-[#933D32] transition-colors"
+          >
+            <span>See all cakes</span>
+            <ArrowRight size={15} />
+          </Link>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {products.slice(0, 3).map(p => (
+            <ProductCard key={p.id} product={p} />
+          ))}
+        </div>
+      </section>
+
+      {/* 4. Occasions Editorial Grid */}
+      <section className="container">
+        <div className="bg-[#1E1917] text-white rounded-3xl p-8 md:p-14 lg:p-16 overflow-hidden">
+          <div className="max-w-xl space-y-4 mb-10">
+            <div className="text-xs uppercase font-semibold tracking-widest text-[#E8D4CF]">
+              For every milestone
+            </div>
+            <h2 className="serif text-3xl md:text-5xl font-normal tracking-tight text-white">
+              A reason is optional.<br />Cake is not.
+            </h2>
+            <p className="text-sm text-[#A39993] leading-relaxed">
+              Whether celebrating another spin around the sun, a wedding milestone, or an intimate weekend gathering.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {categories.map(category => (
+              <Link
+                key={category}
+                href={`/cakes?category=${encodeURIComponent(category)}`}
+                className="group relative p-6 rounded-2xl bg-[#282220] hover:bg-[#332C29] border border-[#3D3430] hover:border-[#E8D4CF]/30 transition-all flex flex-col justify-between min-h-[140px]"
+              >
+                <div className="text-xs text-[#A39993] uppercase tracking-wider font-medium">
+                  Occasion
+                </div>
+                <div className="serif text-xl text-white font-normal group-hover:text-[#E8D4CF] transition-colors flex items-center justify-between">
+                  <span>{category}</span>
+                  <ArrowRight size={16} className="transform group-hover:translate-x-1 transition-transform" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Bakery Promise Banner */}
+      <section className="container text-center py-8">
+        <div className="max-w-2xl mx-auto space-y-6">
+          <div className="eyebrow">The Speed Cake Promise</div>
+          <h2 className="serif text-4xl md:text-5xl text-[#1E1917] font-normal leading-tight">
+            There’s always time for something lovely.
+          </h2>
+          <p className="text-base text-[#7A726D] leading-relaxed">
+            Select your cake, personalize your size and message, and our bakers will take care of the rest. We provide real-time tracking from oven to delivery.
+          </p>
+          <div className="pt-2">
+            <Link
+              href="/cakes"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-sm font-semibold text-white bg-[#1E1917] hover:bg-[#332C29] transition-all shadow-card hover:shadow-card-hover"
+            >
+              <span>Order Your Celebration Cake</span>
+              <ArrowRight size={16} />
+            </Link>
+          </div>
+        </div>
+      </section>
+    </main>
+  )
+}

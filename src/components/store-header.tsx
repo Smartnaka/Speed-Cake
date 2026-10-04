@@ -8,12 +8,6 @@ import { readCart } from '@/lib/cart'
 
 type ProductSummary = { category: string }
 
-/**
- * Auth state:
- *   'loading'  — initial session check in progress (avoid flicker)
- *   'guest'    — no active Supabase session
- *   'signed-in' — active Supabase session
- */
 type AuthState = 'loading' | 'guest' | 'signed-in'
 
 export function StoreHeader() {
@@ -23,12 +17,10 @@ export function StoreHeader() {
   const [categories, setCategories] = useState<string[]>([])
 
   useEffect(() => {
-    // Cart count
     const refresh = () => setCount(readCart().reduce((n, item) => n + item.quantity, 0))
     refresh()
     window.addEventListener('speedcake-cart', refresh)
 
-    // Supabase auth — real session, not localStorage flags
     let subscription: { unsubscribe: () => void } | undefined
     try {
       const db = supabaseBrowser()
@@ -46,7 +38,6 @@ export function StoreHeader() {
       setAuthState('guest')
     }
 
-    // Categories for nav
     fetch('/api/products')
       .then(r => r.json())
       .then(d => {
@@ -66,48 +57,59 @@ export function StoreHeader() {
   const isLoading = authState === 'loading'
 
   return (
-    <header className="bg-[#fff9f2]/95 sticky top-0 z-40 border-b border-[#eee4dc]">
-      <div className="container min-h-[76px] flex items-center justify-between gap-4">
-        {/* Logo */}
-        <Link href="/" className="serif text-[29px] tracking-tight text-[#6f3d36]">
-          speed cake<span className="text-[#c28d79]">.</span>
+    <header className="sticky top-0 z-50 bg-[#FAF8F5]/90 backdrop-blur-md border-b border-[#EAE3DC]/80 transition-all">
+      <div className="container min-h-[72px] flex items-center justify-between gap-4">
+        {/* Brand Logo */}
+        <Link href="/" className="serif text-[28px] tracking-tight text-[#1E1917] hover:opacity-90 transition">
+          speed cake<span className="text-[#933D32]">.</span>
         </Link>
 
-        {/* Desktop nav links */}
-        <nav className="hidden md:flex items-center gap-7 text-[13px] text-[#403835]">
-          <Link href="/cakes">Shop all</Link>
+        {/* Desktop Navigation Links */}
+        <nav className="hidden md:flex items-center gap-1.5 text-[13px] font-medium text-[#4A4340]">
+          <Link
+            href="/cakes"
+            className="px-3.5 py-1.5 rounded-full hover:bg-[#F2ECE5] hover:text-[#1E1917] transition"
+          >
+            Shop all
+          </Link>
           {categories.slice(0, 3).map(category => (
-            <Link key={category} href={`/cakes?category=${encodeURIComponent(category)}`}>
+            <Link
+              key={category}
+              href={`/cakes?category=${encodeURIComponent(category)}`}
+              className="px-3.5 py-1.5 rounded-full hover:bg-[#F2ECE5] hover:text-[#1E1917] transition"
+            >
               {category}
             </Link>
           ))}
-          <Link href="/track">Track order</Link>
+          <Link
+            href="/track"
+            className="px-3.5 py-1.5 rounded-full hover:bg-[#F2ECE5] hover:text-[#1E1917] transition"
+          >
+            Track order
+          </Link>
         </nav>
 
-        {/* Right side: auth actions + cart + mobile menu toggle */}
-        <div className="flex items-center gap-4">
-          {/* Desktop auth actions — visible text links, not just icons */}
+        {/* Right Action Bar */}
+        <div className="flex items-center gap-3">
+          {/* Desktop Auth Controls */}
           {isLoading && (
-            <div className="hidden md:block w-24" aria-hidden="true">
-              {/* Invisible placeholder to prevent layout shift */}
-            </div>
+            <div className="hidden md:block w-36 h-9" aria-hidden="true" />
           )}
 
           {isGuest && (
-            <div className="hidden md:flex items-center gap-3 text-[13px]">
+            <div className="hidden md:flex items-center gap-2">
               <Link
                 href="/account"
-                className="flex items-center gap-1.5 text-[#403835] hover:text-[#6f3d36] transition"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#4A4340] hover:text-[#1E1917] rounded-full hover:bg-[#F2ECE5] transition"
               >
-                <LogIn size={15} strokeWidth={1.8} />
+                <LogIn size={14} strokeWidth={2} />
                 <span>Sign in</span>
               </Link>
-              <span className="text-[#d4c8c0]">|</span>
               <Link
                 href="/account?mode=signup"
-                className="flex items-center gap-1.5 text-[#6f3d36] font-medium hover:text-[#522a24] transition"
+                className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#1E1917] hover:bg-[#332C29] rounded-full shadow-sm transition"
               >
-                <UserPlus size={15} strokeWidth={1.8} />
+                <UserPlus size={14} strokeWidth={2} />
                 <span>Create account</span>
               </Link>
             </div>
@@ -116,90 +118,111 @@ export function StoreHeader() {
           {isSignedIn && (
             <Link
               href="/account"
-              className="hidden md:flex items-center gap-1.5 text-[13px] text-[#403835] hover:text-[#6f3d36] transition"
+              className="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-[#DFD7CF] bg-white/80 hover:border-[#1E1917] text-xs font-medium text-[#1E1917] shadow-sm transition"
             >
-              <UserRound size={16} strokeWidth={1.7} />
+              <UserRound size={14} strokeWidth={2} className="text-[#933D32]" />
               <span>Account</span>
             </Link>
           )}
 
-          {/* Cart icon — always visible */}
-          <Link aria-label={`Cart, ${count} items`} href="/cart" className="relative">
-            <ShoppingBag size={19} strokeWidth={1.6} />
-            <span className="absolute -right-2 -top-2 rounded-full bg-[#6f3d36] text-white w-4 h-4 grid place-items-center text-[9px]">
-              {count}
-            </span>
+          {/* Cart Icon */}
+          <Link
+            aria-label={`Cart, ${count} items`}
+            href="/cart"
+            className="relative p-2.5 rounded-full bg-white/70 hover:bg-white border border-[#EAE3DC] text-[#1E1917] transition shadow-sm"
+          >
+            <ShoppingBag size={18} strokeWidth={1.8} />
+            {count > 0 && (
+              <span className="absolute -right-1.5 -top-1.5 rounded-full bg-[#933D32] text-white w-5 h-5 flex items-center justify-center text-[10px] font-bold shadow-sm animate-in zoom-in-50">
+                {count}
+              </span>
+            )}
           </Link>
 
-          {/* Mobile menu toggle */}
+          {/* Mobile Navigation Toggle Button */}
           <button
             aria-label={open ? 'Close menu' : 'Open menu'}
-            className="md:hidden"
+            className="md:hidden p-2 rounded-full border border-[#EAE3DC] bg-white text-[#1E1917] hover:bg-[#F2ECE5] transition"
             onClick={() => setOpen(!open)}
           >
-            {open ? <X size={21} /> : <Menu size={21} />}
+            {open ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile navigation */}
+      {/* Mobile Drawer Menu */}
       {open && (
-        <nav className="md:hidden px-6 pb-5 grid gap-4 text-sm border-t border-[#eee4dc]">
-          <Link onClick={() => setOpen(false)} href="/cakes" className="pt-4">
-            Shop all cakes
-          </Link>
-          {categories.map(category => (
+        <div className="md:hidden border-t border-[#EAE3DC] bg-[#FAF8F5] px-6 py-6 space-y-5 animate-in slide-in-from-top-2 duration-200">
+          <div className="text-xs uppercase font-semibold tracking-widest text-[#933D32]">
+            Collections
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-sm font-medium">
             <Link
               onClick={() => setOpen(false)}
-              key={category}
-              href={`/cakes?category=${encodeURIComponent(category)}`}
+              href="/cakes"
+              className="p-3 rounded-xl bg-white border border-[#EAE3DC] text-[#1E1917]"
             >
-              {category}
+              Shop all cakes
             </Link>
-          ))}
-          <Link onClick={() => setOpen(false)} href="/track">
-            Track order
+            {categories.map(category => (
+              <Link
+                onClick={() => setOpen(false)}
+                key={category}
+                href={`/cakes?category=${encodeURIComponent(category)}`}
+                className="p-3 rounded-xl bg-white border border-[#EAE3DC] text-[#1E1917]"
+              >
+                {category}
+              </Link>
+            ))}
+          </div>
+
+          <Link
+            onClick={() => setOpen(false)}
+            href="/track"
+            className="block text-sm font-medium text-[#4A4340] py-2 border-b border-[#EAE3DC]"
+          >
+            Track order &rarr;
           </Link>
 
-          {/* Mobile auth — clear text actions, not an icon */}
-          <div className="border-t border-[#eee4dc] pt-4 grid gap-3">
+          {/* Mobile Auth Actions */}
+          <div className="pt-2">
             {isLoading && (
-              <span className="text-xs text-[#98857e]">Checking account…</span>
+              <span className="text-xs text-[#7A726D]">Checking account session…</span>
             )}
 
             {isGuest && (
-              <>
+              <div className="grid grid-cols-2 gap-3">
                 <Link
                   onClick={() => setOpen(false)}
                   href="/account"
-                  className="flex items-center gap-2 text-[#403835]"
+                  className="flex items-center justify-center gap-2 p-3 rounded-xl border border-[#DFD7CF] bg-white text-xs font-semibold text-[#1E1917]"
                 >
-                  <LogIn size={16} strokeWidth={1.7} />
+                  <LogIn size={15} />
                   Sign in
                 </Link>
                 <Link
                   onClick={() => setOpen(false)}
                   href="/account?mode=signup"
-                  className="flex items-center gap-2 font-medium text-[#6f3d36]"
+                  className="flex items-center justify-center gap-2 p-3 rounded-xl bg-[#1E1917] text-xs font-semibold text-white shadow-sm"
                 >
-                  <UserPlus size={16} strokeWidth={1.7} />
+                  <UserPlus size={15} />
                   Create account
                 </Link>
-              </>
+              </div>
             )}
 
             {isSignedIn && (
               <Link
                 onClick={() => setOpen(false)}
                 href="/account"
-                className="flex items-center gap-2 text-[#403835]"
+                className="flex items-center justify-center gap-2 p-3.5 rounded-xl border border-[#DFD7CF] bg-white text-sm font-semibold text-[#1E1917] shadow-sm"
               >
-                <UserRound size={16} strokeWidth={1.7} />
+                <UserRound size={16} className="text-[#933D32]" />
                 Your account
               </Link>
             )}
           </div>
-        </nav>
+        </div>
       )}
     </header>
   )
